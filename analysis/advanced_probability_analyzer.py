@@ -266,8 +266,8 @@ class AdvancedProbabilityAnalyzer:
         summary = {
             'position': square_position,
             'doctor_count': len(square_data),
-            'avg_total_scripts': square_data['total_scripts'].mean(),
-            'top_specialties': square_data['specialty'].value_counts().head(3).to_dict(),
+            'avg_total_scripts': square_data['total_scripts'].mean() if 'total_scripts' in square_data.columns else len(square_data),
+            'top_specialties': square_data['specialty'].value_counts().head(3).to_dict() if 'specialty' in square_data.columns else {},
             'avg_drug1_prob': square_data[f'{drug1}_probability'].mean(),
             'avg_drug2_prob': square_data[f'{drug2}_probability'].mean(),
             'significant_prescribers': {
@@ -315,8 +315,8 @@ class AdvancedProbabilityAnalyzer:
         if len(square_data) == 0:
             return f"No prescribers in {square_position} quadrant."
         
-        top_specialty = square_data['specialty'].mode()[0] if 'specialty' in square_data.columns else 'General'
-        avg_volume = square_data['total_scripts'].mean()
+        top_specialty = square_data['specialty'].mode()[0] if 'specialty' in square_data.columns and not square_data['specialty'].empty else 'General'
+        avg_volume = square_data['total_scripts'].mean() if 'total_scripts' in square_data.columns else len(square_data)
         
         # Interpret the quadrant
         drug1_range, drug2_range = square_position.split(' x ')
@@ -324,13 +324,16 @@ class AdvancedProbabilityAnalyzer:
         insights = []
         
         # Volume insight - use data-driven thresholds
-        volume_percentiles = square_data['total_scripts'].quantile([0.25, 0.75])
-        if avg_volume > volume_percentiles[0.75]:
-            insights.append(f"High-volume prescribers (avg {avg_volume:.0f} scripts)")
-        elif avg_volume < volume_percentiles[0.25]:
-            insights.append(f"Low-volume prescribers (avg {avg_volume:.0f} scripts)")
+        if 'total_scripts' in square_data.columns:
+            volume_percentiles = square_data['total_scripts'].quantile([0.25, 0.75])
+            if avg_volume > volume_percentiles[0.75]:
+                insights.append(f"High-volume prescribers (avg {avg_volume:.0f} scripts)")
+            elif avg_volume < volume_percentiles[0.25]:
+                insights.append(f"Low-volume prescribers (avg {avg_volume:.0f} scripts)")
+            else:
+                insights.append(f"Moderate prescribers (avg {avg_volume:.0f} scripts)")
         else:
-            insights.append(f"Moderate prescribers (avg {avg_volume:.0f} scripts)")
+            insights.append(f"{len(square_data)} prescribers in this segment")
         
         # Specialty insight
         insights.append(f"Dominated by {top_specialty} specialists")

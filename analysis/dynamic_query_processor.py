@@ -43,10 +43,14 @@ class DynamicQueryProcessor:
             is_comparative = self._is_comparative_probability_query(query)
             
             if is_comparative:
-                # Generate analysis plan
-                analysis_plan = self._generate_complete_analysis_plan(query)
-                # Load required data
-                datasets = self._load_required_data(analysis_plan['data_requirements'])
+                try:
+                    # Generate analysis plan
+                    analysis_plan = self._generate_complete_analysis_plan(query)
+                    # Load required data
+                    datasets = self._load_required_data(analysis_plan['data_requirements'])
+                except:
+                    # Fallback if plan generation fails
+                    datasets = self._load_required_data({'datasets': ['rx_claims']})
                 return self._handle_comparative_probability_query(query, datasets)
             else:
                 # Classify query type for other queries
