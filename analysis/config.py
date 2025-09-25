@@ -1,48 +1,48 @@
-# API Configuration
-OPENAI_API_KEY = "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"
+import os
+from typing import Dict, Any
 
-# BigQuery Configuration
+# IMPORTANT: Your API key is INVALID. Please update it with a valid OpenAI API key.
+# Get your API key from: https://platform.openai.com/api-keys
+# Set it as environment variable: export OPENAI_API_KEY="your-key-here"
+# Or replace the string below with your valid API key
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'YOUR_API_KEY_HERE')
+
+if OPENAI_API_KEY == 'YOUR_OPENAI_API_KEY_HERE' or 'sk-proj-' not in OPENAI_API_KEY:
+    print("="*60)
+    print("WARNING: OpenAI API Key not configured!")
+    print("Please set your OpenAI API key in one of these ways:")
+    print("1. Environment variable: export OPENAI_API_KEY='your-key'")
+    print("2. Edit config.py and replace YOUR_OPENAI_API_KEY_HERE")
+    print("Get your key at: https://platform.openai.com/api-keys")
+    print("="*60)
+
 BIGQUERY_PROJECT_ID = "unique-bonbon-472921-q8"
 BIGQUERY_DATASET = "Claims"
 PHARMACY_TABLE = "rx_claims"
 MEDICAL_TABLE = "medical_claims"
 
-# Drug Classifications
-COMPETITIVE_DRUGS = {
-    "Mounjaro": ["tirzepatide"],
-    "Ozempic": ["semaglutide"],
-    "Trulicity": ["dulaglutide"],
-    "Victoza": ["liraglutide"],
-    "Rybelsus": ["semaglutide oral"],
-    "Wegovy": ["semaglutide weight loss"],
-    "Jardiance": ["empagliflozin"],
-    "Farxiga": ["dapagliflozin"]
+DRUG_CLASSIFICATIONS = {
+    'GLP1': ['Mounjaro', 'Ozempic', 'Wegovy', 'Rybelsus', 'Trulicity'],
+    'PSORIASIS': ['Tremfya', 'Skyrizi', 'Cosentyx', 'Taltz', 'Rinvoq'],
+    'DIABETES': ['Jardiance', 'Farxiga', 'Invokana', 'Steglatro']
 }
 
-DRUG_CLASSES = {
-    "GLP-1/GIP": ["Mounjaro"],
-    "GLP-1": ["Ozempic", "Trulicity", "Victoza", "Rybelsus", "Wegovy"],
-    "SGLT-2": ["Jardiance", "Farxiga"]
-}
-
-# Analysis Parameters
-ANALYSIS_PARAMS = {
-    "min_prescriptions": 10,
+ANALYSIS_CONFIG = {
     "confidence_threshold": 0.95,
-    "temporal_window_days": 365,
+    "min_sample_size": 30,
+    "p_value_threshold": 0.05,
     "feature_importance_threshold": 0.05,
     "max_visualization_points": 1000,
     "top_n_default": 10
 }
 
-# Model Settings - Using best available OpenAI model
 MODEL_CONFIG = {
-    "primary_model": "gpt-4o",  # Best model for code generation
-    "temperature": 0.1,  # Lower temperature for more consistent code
-    "max_tokens": 3000  # Increased for complex analysis code
+    "primary_model": "gpt-4o",
+    "temperature": 0.1,
+    "max_tokens": 4000
 }
 
-# Visualization Configuration
 VIZ_CONFIG = {
     "output_dir": "images",
     "dpi": 150,

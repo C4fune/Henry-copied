@@ -1,22 +1,24 @@
-#!/usr/bin/env python
+import json
 import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append('.')
+import pandas as pd
 
 from dynamic_query_processor import DynamicQueryProcessor
-import warnings
-warnings.filterwarnings('ignore')
-import json
-
 
 def print_header():
-    print("\n" + "="*70)
+    print("="*70)
     print("PHARMACEUTICAL ANALYTICS SYSTEM")
     print("="*70)
-    print("\nType your query or 'quit' to exit.\n")
-
 
 def format_results(results: dict):
+    print("\n" + "="*70)
+    print("ANALYSIS RESULTS")
+    print("="*70)
+    
+    if results.get("error"):
+        print(f"\nError: {results['error']}")
+        return
+    
     if results.get("insights"):
         print(f"\nINSIGHTS:")
         print("-"*60)
@@ -28,53 +30,46 @@ def format_results(results: dict):
         
         tech_data = results['technical_data']
         
-        # Data Quality Indicators
         if 'data_quality' in tech_data:
             print(f"\nData Quality:")
             for key, value in tech_data['data_quality'].items():
                 print(f"  • {key}: {value}")
         
-        # Statistical Evidence
         if 'statistical_evidence' in tech_data:
             print(f"\nStatistical Evidence:")
             for test_name, test_data in tech_data['statistical_evidence'].items():
                 if isinstance(test_data, dict):
                     print(f"  • {test_name}:")
                     print(f"    - p-value: {test_data.get('value', 'N/A')}")
-                    print(f"    - {test_data.get('interpretation', '')}")
+                    print(f"    - Significant: {test_data.get('significant', 'N/A')}")
         
-        # Key Metrics
-        if 'key_metrics' in tech_data:
-            print(f"\nKey Metrics:")
-            for metric_name, metric_value in tech_data['key_metrics'].items():
+        if 'key_findings' in tech_data:
+            print(f"\nKey Findings:")
+            for metric_name, metric_value in tech_data['key_findings'].items():
                 if isinstance(metric_value, (int, float)):
                     print(f"  • {metric_name}: {metric_value:,.2f}")
-                elif isinstance(metric_value, dict):
+                elif isinstance(metric_value, list) and len(metric_value) < 5:
                     print(f"  • {metric_name}: {metric_value}")
         
-        # Methodology
         if 'methodology' in tech_data:
-            print(f"\nMethodology: {tech_data['methodology']}")
-        
-        # Statistical Tests Performed
-        if 'statistical_tests_performed' in tech_data:
-            print(f"\nStatistical Tests:")
-            for test in tech_data['statistical_tests_performed']:
-                print(f"  • {test}")
-        
-        # Comparative Analysis
-        if 'comparative_analysis' in tech_data:
-            print(f"\nComparative Analysis:")
-            print(f"  {tech_data['comparative_analysis']}")
+            print(f"\nMethodology:")
+            if isinstance(tech_data['methodology'], dict):
+                for key, value in tech_data['methodology'].items():
+                    print(f"  • {key}: {value}")
     
     if results.get("results"):
         print(f"\n\nRESULTS SUMMARY:")
         print("-"*60)
         
-        res = results['results']
-        if 'summary_statistics' in res:
-            for key, value in res['summary_statistics'].items():
-                print(f"  • {key}: {value}")
+        for key, value in results['results'].items():
+            if isinstance(value, pd.DataFrame):
+                print(f"{key}: DataFrame with shape {value.shape}")
+            elif isinstance(value, dict) and len(str(value)) < 200:
+                print(f"{key}: {value}")
+            elif isinstance(value, (int, float)):
+                print(f"{key}: {value:.4f}")
+            else:
+                print(f"{key}: {type(value).__name__}")
     
     if results.get("visualizations"):
         print(f"\n\nVISUALIZATIONS:")
@@ -82,47 +77,71 @@ def format_results(results: dict):
         for viz in results['visualizations']:
             print(f"  ✓ {viz}")
     
+    if results.get("text_report"):
+        print(f"\n\nTEXT REPORT:")
+        print("-"*60)
+        print(f"  ✓ {results['text_report']}")
     
-    if results.get("datasets_used"):
-        print(f"Datasets Used: {', '.join(results['datasets_used'])}")
+    if results.get("output_folder"):
+        print(f"\n\n📁 ALL OUTPUTS SAVED TO:")
+        print("-"*60)
+        print(f"  {results['output_folder']}")
     
     print("="*70)
 
-
 def main():
+    import sys
+    
     print_header()
+    processor = DynamicQueryProcessor()
     
-    print("Initializing system...")
-    
-    try:
-        processor = DynamicQueryProcessor()
-        print("Ready!\n")
-    except Exception as e:
-        print(f"Error initializing system: {str(e)}")
+    # Check if query is provided as command line argument
+    if len(sys.argv) > 1:
+        # Single query mode
+        query = ' '.join(sys.argv[1:])
+        print(f"\nProcessing query: {query}\n")
+        results = processor.process(query)
+        format_results(results)
         return
+    
+    # Check if input is being piped
+    if not sys.stdin.isatty():
+        try:
+            query = sys.stdin.read().strip()
+            if query:
+                print(f"\nProcessing query: {query}\n")
+                results = processor.process(query)
+                format_results(results)
+                return
+        except:
+            pass
+    
+    # Interactive mode
+    print("\nReady for queries. Type 'exit' to quit.\n")
     
     while True:
         try:
-            query = input("Query: ").strip()
+            query = input("\nQuery: ").strip()
             
-            if query.lower() in ['quit', 'exit', 'q']:
-                print("\nGoodbye!")
+            if query.lower() in ['exit', 'quit', 'q']:
+                print("\nExiting...")
                 break
-            elif not query:
+            
+            if not query:
                 continue
             
-            print("\n" + "="*70)
             results = processor.process(query)
             format_results(results)
             
-        except KeyboardInterrupt:
-            print("\n\nGoodbye!")
-            break
         except EOFError:
-            print("\nError: EOF when reading a line")
+            # Handle EOF gracefully
+            print("\n\nExiting...")
+            break
+        except KeyboardInterrupt:
+            print("\n\nExiting...")
+            break
         except Exception as e:
-            print(f"\nError processing query: {str(e)}")
-
+            print(f"\nError: {str(e)}")
 
 if __name__ == "__main__":
     main()
