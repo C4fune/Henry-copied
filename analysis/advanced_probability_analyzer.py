@@ -462,84 +462,99 @@ class AdvancedProbabilityAnalyzer:
         ]
         ax2.legend(handles=legend_elements, loc='best', fontsize=10)
         
-        # 3. Probability Distribution Violin Plots
+        # 3. Specialty Breakdown Bar Chart
         ax3 = plt.subplot2grid((2, 2), (1, 0), colspan=1, rowspan=1)
         
-        # Prepare data for violin plot
-        violin_data = pd.DataFrame({
-            'Probability': list(profiles_df[f'{drug1}_probability']) + list(profiles_df[f'{drug2}_probability']),
-            'Drug': [drug1] * len(profiles_df) + [drug2] * len(profiles_df)
-        })
+        # Get specialty data if available
+        if 'specialty' in profiles_df.columns:
+            # Calculate mean probabilities by specialty
+            specialty_stats = profiles_df.groupby('specialty').agg({
+                f'{drug1}_probability': 'mean',
+                f'{drug2}_probability': 'mean',
+                'NPI': 'count'
+            }).rename(columns={'NPI': 'count'})
+            
+            # Filter to top specialties by count
+            top_specialties = specialty_stats.nlargest(5, 'count')
+            
+            # Create grouped bar chart
+            x = np.arange(len(top_specialties))
+            width = 0.35
+            
+            bars1 = ax3.bar(x - width/2, top_specialties[f'{drug1}_probability'], 
+                           width, label=drug1, color='#2171b5', alpha=0.8)
+            bars2 = ax3.bar(x + width/2, top_specialties[f'{drug2}_probability'], 
+                           width, label=drug2, color='#08519c', alpha=0.8)
+            
+            ax3.set_xlabel('Specialty', fontsize=12)
+            ax3.set_ylabel('Mean Probability', fontsize=12)
+            ax3.set_title('Prescribing Patterns by Specialty', fontsize=16, fontweight='bold')
+            ax3.set_xticks(x)
+            ax3.set_xticklabels(top_specialties.index, rotation=45, ha='right')
+            ax3.legend(fontsize=10)
+            ax3.grid(True, alpha=0.3, axis='y')
+            
+            # Add value labels on bars
+            for bars in [bars1, bars2]:
+                for bar in bars:
+                    height = bar.get_height()
+                    ax3.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                            f'{height:.2f}', ha='center', va='bottom', fontsize=9)
+        else:
+            # Fallback: Distribution histogram
+            ax3.hist([profiles_df[f'{drug1}_probability'], profiles_df[f'{drug2}_probability']], 
+                    bins=20, label=[drug1, drug2], alpha=0.7, color=['#2171b5', '#08519c'])
+            ax3.set_xlabel('Probability', fontsize=12)
+            ax3.set_ylabel('Frequency', fontsize=12)
+            ax3.set_title('Probability Distribution Comparison', fontsize=16, fontweight='bold')
+            ax3.legend(fontsize=10)
+            ax3.grid(True, alpha=0.3)
         
-        # Create violin plot
-        sns.violinplot(data=violin_data, x='Drug', y='Probability', ax=ax3, 
-                      palette=['#2171b5', '#08519c'], inner='box')
-        
-        ax3.set_title('Probability Distributions', fontsize=16, fontweight='bold')
-        ax3.set_ylabel('Prescribing Probability', fontsize=12)
-        ax3.set_xlabel('')
-        ax3.grid(True, alpha=0.3, axis='y')
-        
-        # Add mean lines
-        for i, drug in enumerate([drug1, drug2]):
-            mean_val = profiles_df[f'{drug}_probability'].mean()
-            ax3.hlines(mean_val, i-0.4, i+0.4, colors='red', linestyles='--', linewidth=2)
-            ax3.text(i, mean_val + 0.02, f'μ={mean_val:.3f}', ha='center', fontsize=10, color='red')
-        
-        # 4. Correlation & Density Contour Plot
+        # 4. Time Series or Volume Analysis
         ax4 = plt.subplot2grid((2, 2), (1, 1), colspan=1, rowspan=1)
         
-        # Calculate correlation
-        correlation = profiles_df[f'{drug1}_probability'].corr(profiles_df[f'{drug2}_probability'])
+        # Create prescriber segmentation by probability ranges
+        segments = {
+            'Low Both': (profiles_df[f'{drug1}_probability'] < 0.25) & (profiles_df[f'{drug2}_probability'] < 0.25),
+            'Moderate': ((profiles_df[f'{drug1}_probability'] >= 0.25) & (profiles_df[f'{drug1}_probability'] < 0.5)) | 
+                       ((profiles_df[f'{drug2}_probability'] >= 0.25) & (profiles_df[f'{drug2}_probability'] < 0.5)),
+            'High Single': ((profiles_df[f'{drug1}_probability'] >= 0.5) & (profiles_df[f'{drug2}_probability'] < 0.5)) |
+                          ((profiles_df[f'{drug2}_probability'] >= 0.5) & (profiles_df[f'{drug1}_probability'] < 0.5)),
+            'High Both': (profiles_df[f'{drug1}_probability'] >= 0.5) & (profiles_df[f'{drug2}_probability'] >= 0.5)
+        }
         
-        # Create hexbin plot with density contours
-        hexbin = ax4.hexbin(profiles_df[f'{drug1}_probability'], 
-                           profiles_df[f'{drug2}_probability'],
-                           gridsize=20, cmap='YlOrRd', alpha=0.6)
+        # Count prescribers in each segment
+        segment_counts = {name: mask.sum() for name, mask in segments.items()}
         
-        # Add density contours
-        from scipy.stats import gaussian_kde
-        if len(profiles_df) > 10:
-            try:
-                x = profiles_df[f'{drug1}_probability'].values
-                y = profiles_df[f'{drug2}_probability'].values
-                
-                # Calculate the point density
-                xy = np.vstack([x, y])
-                z = gaussian_kde(xy)(xy)
-                
-                # Sort the points by density
-                idx = z.argsort()
-                x, y, z = x[idx], y[idx], z[idx]
-                
-                # Create contour plot
-                xi = np.linspace(0, 1, 100)
-                yi = np.linspace(0, 1, 100)
-                Xi, Yi = np.meshgrid(xi, yi)
-                
-                # Interpolate
-                from scipy.interpolate import griddata
-                Zi = griddata((x, y), z, (Xi, Yi), method='linear')
-                
-                # Add contours
-                contours = ax4.contour(Xi, Yi, Zi, levels=5, colors='black', alpha=0.4, linewidths=1)
-                ax4.clabel(contours, inline=True, fontsize=8)
-            except:
-                pass
+        # Create pie chart with custom colors
+        colors_pie = ['#f0f0f0', '#9ecae1', '#4292c6', '#08306b']
+        sizes = list(segment_counts.values())
+        labels = [f'{name}\n({count} prescribers)' for name, count in segment_counts.items()]
         
-        ax4.set_xlabel(f'{drug1} Probability', fontsize=12)
-        ax4.set_ylabel(f'{drug2} Probability', fontsize=12)
-        ax4.set_title(f'Density & Correlation Plot\n(r = {correlation:.3f})', fontsize=16, fontweight='bold')
-        ax4.set_xlim(0, 1)
-        ax4.set_ylim(0, 1)
-        ax4.grid(True, alpha=0.3)
+        # Filter out segments with 0 prescribers
+        non_zero = [(l, s, c) for l, s, c in zip(labels, sizes, colors_pie) if s > 0]
+        if non_zero:
+            labels, sizes, colors_pie = zip(*non_zero)
         
-        # Add diagonal reference line
-        ax4.plot([0, 1], [0, 1], 'k--', alpha=0.3, linewidth=1)
+        wedges, texts, autotexts = ax4.pie(sizes, labels=labels, colors=colors_pie,
+                                            autopct='%1.1f%%', startangle=90,
+                                            textprops={'fontsize': 10})
         
-        # Add colorbar for hexbin
-        cb = plt.colorbar(hexbin, ax=ax4)
-        cb.set_label('Prescriber Count', fontsize=10)
+        # Make percentage text bold
+        for autotext in autotexts:
+            autotext.set_fontweight('bold')
+            autotext.set_color('white')
+        
+        ax4.set_title('Prescriber Segmentation Analysis', fontsize=16, fontweight='bold')
+        
+        # Add legend with more details
+        legend_labels = []
+        for name, count in segment_counts.items():
+            if count > 0:
+                pct = count / len(profiles_df) * 100
+                legend_labels.append(f'{name}: {count} ({pct:.1f}%)')
+        
+        ax4.legend(legend_labels, loc='center left', bbox_to_anchor=(1, 0.5), fontsize=9)
         
         # Overall title
         plt.suptitle(f'{drug1} vs {drug2} Prescribing Analysis',

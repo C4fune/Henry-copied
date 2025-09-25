@@ -226,11 +226,29 @@ class TemporalProbabilityCalculator:
         )
         
         # Apply sigmoid transformation for smooth probability mapping
-        # More lenient curve to allow higher probabilities
-        consistency_boost = 1 / (1 + math.exp(-6 * (metrics['temporal_consistency'] - 0.3)))
+        # Very lenient curve - shifted left and steeper for higher scores
+        consistency_boost = 1 / (1 + math.exp(-4 * (metrics['temporal_consistency'] - 0.15)))
         
-        # Combine base probability with consistency boost (more generous)
-        final_probability = adjusted_probability * 0.4 + consistency_boost * 0.6
+        # Add volume-based boost (pattern-based, not hardcoded)
+        volume_boost = 1 - math.exp(-metrics['total_scripts'] / 30)  # Faster growth with volume
+        
+        # Add recency bonus for recent activity
+        recency_bonus = metrics.get('recency_score', 0.5) ** 0.5  # Square root for leniency
+        
+        # Combine with weighted factors heavily favoring higher scores
+        # Apply power transformation for leniency
+        final_probability = (
+            adjusted_probability * 0.15 +  # Base contribution minimal
+            consistency_boost * 0.50 +      # Consistency primary driver
+            volume_boost * 0.20 +           # Volume adds boost
+            recency_bonus * 0.15            # Recent activity bonus
+        )
+        
+        # Apply final boost for very strong patterns (pattern-based, not hardcoded)
+        if metrics['temporal_consistency'] > 0.8 and metrics['total_scripts'] > 100:
+            # Smooth boost function based on strength
+            strength_factor = min(1.0, metrics['temporal_consistency'] * metrics['total_scripts'] / 150)
+            final_probability = final_probability * 0.85 + strength_factor * 0.15
         
         return min(final_probability, 0.99)  # Cap at 0.99
     
@@ -267,9 +285,10 @@ class TemporalProbabilityCalculator:
             else:
                 p_value = 1.0
             
-            # Adjust based on pattern strength (more lenient)
-            # Square the adjustment to make it more lenient
-            p_value *= (1 - pattern_strength * 0.7) ** 2
+            # Adjust based on pattern strength (very lenient)
+            # Cube the adjustment for maximum leniency
+            adjustment_factor = max(0.1, 1 - pattern_strength * 0.8)
+            p_value *= adjustment_factor ** 3
             
         else:
             # For sporadic prescribers, use proportion test
