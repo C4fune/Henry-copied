@@ -404,11 +404,11 @@ class AdvancedProbabilityAnalyzer:
                 
                 print(f"  Square [{row_label}, {col_label}]: {len(square_data)} doctors")
         
-        # Create sophisticated visualization
-        fig = plt.figure(figsize=(20, 16))
+        # Create sophisticated visualization with 4 different plots
+        fig = plt.figure(figsize=(20, 12))
         
-        # Main heatmap (larger)
-        ax1 = plt.subplot2grid((4, 3), (0, 0), colspan=2, rowspan=2)
+        # 1. Main heatmap
+        ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=1, rowspan=1)
         
         # Create custom colormap
         colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', 
@@ -420,48 +420,34 @@ class AdvancedProbabilityAnalyzer:
         sns.heatmap(heatmap_matrix, annot=True, fmt='d', cmap=cmap,
                    cbar_kws={'label': 'Number of Prescribers'},
                    ax=ax1, linewidths=2, linecolor='black',
-                   annot_kws={'fontsize': 12, 'fontweight': 'bold'})
+                   annot_kws={'fontsize': 14, 'fontweight': 'bold'})
         
-        ax1.set_title(f'Advanced Prescriber Probability Heatmap\n{drug1} vs {drug2}', 
-                     fontsize=16, fontweight='bold', pad=20)
-        ax1.set_xlabel(f'{drug1} Prescribing Probability →', fontsize=14, fontweight='bold')
-        ax1.set_ylabel(f'{drug2} Prescribing Probability →', fontsize=14, fontweight='bold')
+        ax1.set_title(f'Prescriber Probability Heatmap', fontsize=16, fontweight='bold')
+        ax1.set_xlabel(f'{drug1} Probability →', fontsize=12, fontweight='bold')
+        ax1.set_ylabel(f'{drug2} Probability →', fontsize=12, fontweight='bold')
         
-        # Add quadrant labels
-        quadrant_names = {
-            (0, 3): 'HIGH BOTH\n(Dual Prescribers)',
-            (0, 0): f'HIGH {drug2} ONLY\n(Selective)',
-            (3, 3): f'HIGH {drug1} ONLY\n(Selective)',
-            (3, 0): 'LOW BOTH\n(Non-prescribers)'
-        }
-        
-        for (row, col), label in quadrant_names.items():
-            ax1.text(col + 0.5, row + 0.5, label, 
-                    ha='center', va='center', fontsize=9, 
-                    style='italic', alpha=0.7, color='darkred')
-        
-        # Individual prescriber scatter
-        ax2 = plt.subplot2grid((4, 3), (0, 2), rowspan=2)
+        # 2. Statistical Significance Scatter
+        ax2 = plt.subplot2grid((2, 2), (0, 1), colspan=1, rowspan=1)
         
         # Color by statistical significance
         colors = []
         for _, row in profiles_df.iterrows():
             if row[f'{drug1}_pvalue'] < 0.05 and row[f'{drug2}_pvalue'] < 0.05:
-                colors.append('red')  # Both significant
+                colors.append('red')
             elif row[f'{drug1}_pvalue'] < 0.05:
-                colors.append('blue')  # Drug1 significant
+                colors.append('blue')
             elif row[f'{drug2}_pvalue'] < 0.05:
-                colors.append('green')  # Drug2 significant
+                colors.append('green')
             else:
-                colors.append('gray')  # Neither significant
+                colors.append('gray')
         
         scatter = ax2.scatter(profiles_df[f'{drug1}_probability'], 
                             profiles_df[f'{drug2}_probability'],
-                            c=colors, alpha=0.6, s=30)
+                            c=colors, alpha=0.6, s=50)
         
         ax2.set_xlabel(f'{drug1} Probability', fontsize=12)
         ax2.set_ylabel(f'{drug2} Probability', fontsize=12)
-        ax2.set_title('Statistical Significance Map', fontsize=14, fontweight='bold')
+        ax2.set_title('Statistical Significance Map', fontsize=16, fontweight='bold')
         ax2.set_xlim(-0.05, 1.05)
         ax2.set_ylim(-0.05, 1.05)
         ax2.grid(True, alpha=0.3)
@@ -469,71 +455,97 @@ class AdvancedProbabilityAnalyzer:
         # Add legend
         from matplotlib.patches import Patch
         legend_elements = [
-            Patch(facecolor='red', alpha=0.6, label='Both drugs significant'),
-            Patch(facecolor='blue', alpha=0.6, label=f'{drug1} significant only'),
-            Patch(facecolor='green', alpha=0.6, label=f'{drug2} significant only'),
+            Patch(facecolor='red', alpha=0.6, label='Both significant'),
+            Patch(facecolor='blue', alpha=0.6, label=f'{drug1} significant'),
+            Patch(facecolor='green', alpha=0.6, label=f'{drug2} significant'),
             Patch(facecolor='gray', alpha=0.6, label='Neither significant')
         ]
-        ax2.legend(handles=legend_elements, loc='upper left', fontsize=9)
+        ax2.legend(handles=legend_elements, loc='best', fontsize=10)
         
-        # Add 16-square detailed analysis (bottom section)
-        analysis_axes = []
-        for i in range(4):
-            for j in range(4):
-                ax = plt.subplot2grid((4, 4), (2 + i//2, j//2 + j%2), colspan=1, rowspan=1)
-                analysis_axes.append(ax)
-                ax.axis('off')
+        # 3. Probability Distribution Violin Plots
+        ax3 = plt.subplot2grid((2, 2), (1, 0), colspan=1, rowspan=1)
+        
+        # Prepare data for violin plot
+        violin_data = pd.DataFrame({
+            'Probability': list(profiles_df[f'{drug1}_probability']) + list(profiles_df[f'{drug2}_probability']),
+            'Drug': [drug1] * len(profiles_df) + [drug2] * len(profiles_df)
+        })
+        
+        # Create violin plot
+        sns.violinplot(data=violin_data, x='Drug', y='Probability', ax=ax3, 
+                      palette=['#2171b5', '#08519c'], inner='box')
+        
+        ax3.set_title('Probability Distributions', fontsize=16, fontweight='bold')
+        ax3.set_ylabel('Prescribing Probability', fontsize=12)
+        ax3.set_xlabel('')
+        ax3.grid(True, alpha=0.3, axis='y')
+        
+        # Add mean lines
+        for i, drug in enumerate([drug1, drug2]):
+            mean_val = profiles_df[f'{drug}_probability'].mean()
+            ax3.hlines(mean_val, i-0.4, i+0.4, colors='red', linestyles='--', linewidth=2)
+            ax3.text(i, mean_val + 0.02, f'μ={mean_val:.3f}', ha='center', fontsize=10, color='red')
+        
+        # 4. Correlation & Density Contour Plot
+        ax4 = plt.subplot2grid((2, 2), (1, 1), colspan=1, rowspan=1)
+        
+        # Calculate correlation
+        correlation = profiles_df[f'{drug1}_probability'].corr(profiles_df[f'{drug2}_probability'])
+        
+        # Create hexbin plot with density contours
+        hexbin = ax4.hexbin(profiles_df[f'{drug1}_probability'], 
+                           profiles_df[f'{drug2}_probability'],
+                           gridsize=20, cmap='YlOrRd', alpha=0.6)
+        
+        # Add density contours
+        from scipy.stats import gaussian_kde
+        if len(profiles_df) > 10:
+            try:
+                x = profiles_df[f'{drug1}_probability'].values
+                y = profiles_df[f'{drug2}_probability'].values
                 
-                # Get the corresponding square
-                row_label = bin_labels[::-1][i]
-                col_label = bin_labels[j]
-                square_key = f"{col_label} x {row_label}"
+                # Calculate the point density
+                xy = np.vstack([x, y])
+                z = gaussian_kde(xy)(xy)
                 
-                if square_key in square_analyses:
-                    square_info = square_analyses[square_key]
-                    
-                    # Format the analysis text
-                    title = f"[{col_label}, {row_label}]\n{square_info['count']} doctors"
-                    
-                    # Wrap long analysis text
-                    import textwrap
-                    analysis_wrapped = textwrap.fill(square_info['analysis'], width=40)
-                    
-                    # Color based on doctor count
-                    if square_info['count'] == 0:
-                        bg_color = 'white'
-                        text_color = 'gray'
-                    elif square_info['count'] < 10:
-                        bg_color = '#f0f0f0'
-                        text_color = 'black'
-                    elif square_info['count'] < 30:
-                        bg_color = '#e0e0e0'
-                        text_color = 'black'
-                    else:
-                        bg_color = '#d0d0d0'
-                        text_color = 'black'
-                    
-                    ax.text(0.5, 0.95, title, transform=ax.transAxes,
-                           fontsize=8, fontweight='bold', ha='center', va='top')
-                    ax.text(0.5, 0.75, analysis_wrapped, transform=ax.transAxes,
-                           fontsize=6, ha='center', va='top', wrap=True)
-                    
-                    # Add background
-                    rect = plt.Rectangle((0, 0), 1, 1, transform=ax.transAxes,
-                                        facecolor=bg_color, alpha=0.3)
-                    ax.add_patch(rect)
+                # Sort the points by density
+                idx = z.argsort()
+                x, y, z = x[idx], y[idx], z[idx]
+                
+                # Create contour plot
+                xi = np.linspace(0, 1, 100)
+                yi = np.linspace(0, 1, 100)
+                Xi, Yi = np.meshgrid(xi, yi)
+                
+                # Interpolate
+                from scipy.interpolate import griddata
+                Zi = griddata((x, y), z, (Xi, Yi), method='linear')
+                
+                # Add contours
+                contours = ax4.contour(Xi, Yi, Zi, levels=5, colors='black', alpha=0.4, linewidths=1)
+                ax4.clabel(contours, inline=True, fontsize=8)
+            except:
+                pass
+        
+        ax4.set_xlabel(f'{drug1} Probability', fontsize=12)
+        ax4.set_ylabel(f'{drug2} Probability', fontsize=12)
+        ax4.set_title(f'Density & Correlation Plot\n(r = {correlation:.3f})', fontsize=16, fontweight='bold')
+        ax4.set_xlim(0, 1)
+        ax4.set_ylim(0, 1)
+        ax4.grid(True, alpha=0.3)
+        
+        # Add diagonal reference line
+        ax4.plot([0, 1], [0, 1], 'k--', alpha=0.3, linewidth=1)
+        
+        # Add colorbar for hexbin
+        cb = plt.colorbar(hexbin, ax=ax4)
+        cb.set_label('Prescriber Count', fontsize=10)
         
         # Overall title
-        plt.suptitle(f'Advanced Pharmaceutical Prescribing Analysis\n'
-                    f'{drug1} vs {drug2} - Research-Based Probability Calculation',
-                    fontsize=18, fontweight='bold', y=0.98)
+        plt.suptitle(f'{drug1} vs {drug2} Prescribing Analysis',
+                    fontsize=20, fontweight='bold', y=0.98)
         
-        # Add methodology note
-        methodology_text = ("Methodology: Empirical Bayes estimation, temporal weighting, "
-                          "specialty adjustment, Wilson confidence intervals")
-        fig.text(0.5, 0.01, methodology_text, ha='center', fontsize=9, style='italic')
-        
-        plt.tight_layout(rect=[0, 0.02, 1, 0.96])
+        plt.tight_layout(rect=[0, 0.02, 1, 0.95])
         
         if save_path:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')

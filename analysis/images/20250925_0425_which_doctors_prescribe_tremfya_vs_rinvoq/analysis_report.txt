@@ -1,7 +1,7 @@
 PRESCRIBER ANALYSIS REPORT
-Query: what types of doctors are more likely to prescribe tremfya over rinvoq
+Query: which doctors prescribe tremfya vs rinvoq
 Analysis: TREMFYA vs RINVOQ
-Generated: September 25, 2025 at 02:40 AM
+Generated: September 25, 2025 at 04:25 AM
 ================================================================================
 
 QUADRANT 1: TREMFYA 0-25%, RINVOQ 75-100%
@@ -22,11 +22,11 @@ No prescribers currently fall into this category (TREMFYA 75-100%, RINVOQ 75-100
 
 QUADRANT 5: TREMFYA 0-25%, RINVOQ 50-75%
 --------------------------------------------------------------------------------
-No prescribers currently fall into this category (TREMFYA 0-25%, RINVOQ 50-75%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+These 2 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 2) writing 28 scripts monthly. With 1 significant for TREMFYA and 2 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 6: TREMFYA 25-50%, RINVOQ 50-75%
 --------------------------------------------------------------------------------
-These 4 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 4) writing 47 scripts monthly. With 0 significant for TREMFYA and 4 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 25 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 25) writing 50 scripts monthly. With 0 significant for TREMFYA and 25 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 7: TREMFYA 50-75%, RINVOQ 50-75%
 --------------------------------------------------------------------------------
@@ -38,15 +38,15 @@ No prescribers currently fall into this category (TREMFYA 75-100%, RINVOQ 50-75%
 
 QUADRANT 9: TREMFYA 0-25%, RINVOQ 25-50%
 --------------------------------------------------------------------------------
-These 33 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 33) writing 30 scripts monthly. With 10 significant for TREMFYA and 6 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 81 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 81) writing 34 scripts monthly. With 33 significant for TREMFYA and 18 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 10: TREMFYA 25-50%, RINVOQ 25-50%
 --------------------------------------------------------------------------------
-These 175 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 175) writing 45 scripts monthly. With 36 significant for TREMFYA and 58 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 296 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 296) writing 44 scripts monthly. With 45 significant for TREMFYA and 76 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 11: TREMFYA 50-75%, RINVOQ 25-50%
 --------------------------------------------------------------------------------
-These 10 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 10) writing 56 scripts monthly. With 10 significant for TREMFYA and 2 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 34 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 34) writing 51 scripts monthly. With 34 significant for TREMFYA and 5 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 12: TREMFYA 75-100%, RINVOQ 25-50%
 --------------------------------------------------------------------------------
@@ -54,15 +54,15 @@ No prescribers currently fall into this category (TREMFYA 75-100%, RINVOQ 25-50%
 
 QUADRANT 13: TREMFYA 0-25%, RINVOQ 0-25%
 --------------------------------------------------------------------------------
-This segment has 176 prescribers who rarely use either drug. Primarily Mixed doctors (0 out of 176) averaging 16 scripts monthly. With only 53 significant for TREMFYA and 55 for RINVOQ, they likely rely on alternative therapies or treat milder cases not requiring these medications. This group may lack familiarity with these newer options or face cost/access barriers. They represent growth potential through education about appropriate patient selection and unique benefits these therapies offer.
+This segment has 324 prescribers who rarely use either drug. Primarily Mixed doctors (0 out of 324) averaging 16 scripts monthly. With only 117 significant for TREMFYA and 96 for RINVOQ, they likely rely on alternative therapies or treat milder cases not requiring these medications. This group may lack familiarity with these newer options or face cost/access barriers. They represent growth potential through education about appropriate patient selection and unique benefits these therapies offer.
 
 QUADRANT 14: TREMFYA 25-50%, RINVOQ 0-25%
 --------------------------------------------------------------------------------
-These 99 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 99) writing 27 scripts monthly. With 10 significant for TREMFYA and 38 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 219 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 219) writing 29 scripts monthly. With 18 significant for TREMFYA and 65 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 15: TREMFYA 50-75%, RINVOQ 0-25%
 --------------------------------------------------------------------------------
-These 3 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 3) writing 46 scripts monthly. With 3 significant for TREMFYA and 1 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+These 19 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 19) writing 44 scripts monthly. With 19 significant for TREMFYA and 8 for RINVOQ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
 
 QUADRANT 16: TREMFYA 75-100%, RINVOQ 0-25%
 --------------------------------------------------------------------------------

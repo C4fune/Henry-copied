@@ -226,11 +226,11 @@ class TemporalProbabilityCalculator:
         )
         
         # Apply sigmoid transformation for smooth probability mapping
-        # This creates a natural curve without hard thresholds
-        consistency_boost = 1 / (1 + math.exp(-10 * (metrics['temporal_consistency'] - 0.5)))
+        # More lenient curve to allow higher probabilities
+        consistency_boost = 1 / (1 + math.exp(-6 * (metrics['temporal_consistency'] - 0.3)))
         
-        # Combine base probability with consistency boost
-        final_probability = adjusted_probability * (1 + consistency_boost) / 2
+        # Combine base probability with consistency boost (more generous)
+        final_probability = adjusted_probability * 0.4 + consistency_boost * 0.6
         
         return min(final_probability, 0.99)  # Cap at 0.99
     
@@ -267,8 +267,9 @@ class TemporalProbabilityCalculator:
             else:
                 p_value = 1.0
             
-            # Adjust based on pattern strength (continuous, not threshold-based)
-            p_value *= (1 - pattern_strength)
+            # Adjust based on pattern strength (more lenient)
+            # Square the adjustment to make it more lenient
+            p_value *= (1 - pattern_strength * 0.7) ** 2
             
         else:
             # For sporadic prescribers, use proportion test

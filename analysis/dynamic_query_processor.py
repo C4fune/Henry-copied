@@ -755,8 +755,8 @@ Top-right quadrant (high probability for both) contains prescribers most likely 
         """Generate realistic sample prescription data for probability analysis"""
         np.random.seed(42)
         
-        # Generate prescriber profiles
-        n_prescribers = 500
+        # Generate prescriber profiles (doubled sample size)
+        n_prescribers = 1000
         prescriber_ids = [f'NPI_{i:06d}' for i in range(1, n_prescribers + 1)]
         
         # Specialties with different prescribing patterns
