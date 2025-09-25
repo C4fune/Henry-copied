@@ -86,14 +86,22 @@ class AdvancedProbabilityAnalyzer:
         return self._calculate_original_probabilities(df, drug1, drug2)
     
     def _ci_to_pvalue(self, ci):
-        """Convert confidence interval to approximate p-value"""
+        """Convert confidence interval to approximate p-value using statistical methods"""
         if isinstance(ci, list) and len(ci) == 2:
-            # If CI doesn't include 0.5, it's significant
-            if ci[0] > 0.5 or ci[1] < 0.5:
-                return 0.01
-            else:
-                return 0.10
-        return 0.05
+            # Calculate p-value based on CI width and position
+            import math
+            ci_width = ci[1] - ci[0]
+            ci_center = (ci[0] + ci[1]) / 2
+            
+            # Distance from null hypothesis (0.5) normalized by CI width
+            if ci_width > 0:
+                z_score = abs(ci_center - 0.5) / (ci_width / 3.92)  # 95% CI ≈ 1.96 * 2 * SE
+                # Convert z-score to p-value
+                from scipy import stats
+                p_value = 2 * (1 - stats.norm.cdf(abs(z_score)))
+                return min(p_value, 1.0)
+            
+        return 0.05  # Default if CI not available
     
     def _calculate_original_probabilities(self, df: pd.DataFrame, drug1: str, drug2: str) -> pd.DataFrame:
         """
@@ -149,9 +157,11 @@ class AdvancedProbabilityAnalyzer:
             # 2. TEMPORAL WEIGHTING
             # Recent prescriptions weighted more heavily
             if 'DATE' in doc_data.columns:
-                # Calculate time weights (exponential decay)
+                # Calculate time weights with adaptive decay rate
                 latest_date = doc_data['DATE'].max()
-                time_weights = np.exp(-0.01 * (latest_date - doc_data['DATE']).dt.days)
+                date_range = (latest_date - doc_data['DATE'].min()).days
+                decay_rate = 1.0 / max(date_range, 30)  # Adaptive to data span
+                time_weights = np.exp(-decay_rate * (latest_date - doc_data['DATE']).dt.days)
                 
                 # Weighted probabilities
                 drug1_temporal = np.sum(time_weights[doc_data['DRUG'] == drug1]) / np.sum(time_weights)
@@ -169,9 +179,11 @@ class AdvancedProbabilityAnalyzer:
             specialty_drug1_rate = len(specialty_data[specialty_data[drug_col] == drug1]) / max(len(specialty_data), 1)
             specialty_drug2_rate = len(specialty_data[specialty_data[drug_col] == drug2]) / max(len(specialty_data), 1)
             
-            # Blend individual and specialty rates
-            drug1_specialty_adj = 0.7 * drug1_temporal + 0.3 * specialty_drug1_rate
-            drug2_specialty_adj = 0.7 * drug2_temporal + 0.3 * specialty_drug2_rate
+            # Blend individual and specialty rates using data-driven weights
+            # Weight based on how much data we have for this prescriber
+            data_weight = min(total_scripts / 20, 1.0)  # More scripts = more weight on individual
+            drug1_specialty_adj = data_weight * drug1_temporal + (1 - data_weight) * specialty_drug1_rate
+            drug2_specialty_adj = data_weight * drug2_temporal + (1 - data_weight) * specialty_drug2_rate
             
             # 4. PROPENSITY SCORE ADJUSTMENT
             # Account for prescriber characteristics that predict drug choice

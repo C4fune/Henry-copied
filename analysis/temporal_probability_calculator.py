@@ -202,42 +202,35 @@ class TemporalProbabilityCalculator:
         # Recent activity indicates continued prescribing likelihood
         recency_factor = metrics['recency_score']
         
-        # Minimum threshold adjustment
-        # If prescribing consistently for 3+ months, ensure minimum score of 0.6
-        if metrics['months_active'] >= self.min_months_for_consistency:
-            consistency_floor = 0.6 + (metrics['temporal_consistency'] * 0.35)
-        else:
-            consistency_floor = 0.0
+        # Calculate probability based on observed patterns, not fixed thresholds
+        # Use a sigmoid function to map consistency to probability
+        import math
         
-        # Weighted combination
+        # Weighted combination of factors
         raw_probability = (
             temporal_score * self.consistency_weight +
             stability_bonus * self.volume_weight +
             recency_factor * self.recency_weight
         )
         
-        # Apply consistency floor for regular prescribers
-        adjusted_probability = max(raw_probability, consistency_floor)
-        
-        # Bayesian adjustment with global prior
-        # Less aggressive shrinkage for consistent prescribers
-        if metrics['months_active'] >= 3:
-            shrinkage_factor = 0.9  # Minimal shrinkage for consistent prescribers
-        else:
-            shrinkage_factor = metrics['months_active'] / 3.0
+        # Dynamic shrinkage based on data quantity (not fixed thresholds)
+        # More data = less shrinkage, continuous function
+        data_confidence = 1 - math.exp(-metrics['months_active'] / 2)  # Exponential confidence growth
         
         global_prior = global_benchmark.get('mean_probability', 0.3)
         
-        final_probability = (
-            shrinkage_factor * adjusted_probability + 
-            (1 - shrinkage_factor) * global_prior
+        # Blend individual and global based on confidence
+        adjusted_probability = (
+            data_confidence * raw_probability + 
+            (1 - data_confidence) * global_prior
         )
         
-        # Ensure consistent prescribers get high scores
-        if metrics['temporal_consistency'] >= 0.8:  # Active 80%+ of months
-            final_probability = max(final_probability, 0.75)
-        elif metrics['temporal_consistency'] >= 0.5:  # Active 50%+ of months
-            final_probability = max(final_probability, 0.60)
+        # Apply sigmoid transformation for smooth probability mapping
+        # This creates a natural curve without hard thresholds
+        consistency_boost = 1 / (1 + math.exp(-10 * (metrics['temporal_consistency'] - 0.5)))
+        
+        # Combine base probability with consistency boost
+        final_probability = adjusted_probability * (1 + consistency_boost) / 2
         
         return min(final_probability, 0.99)  # Cap at 0.99
     
@@ -252,20 +245,30 @@ class TemporalProbabilityCalculator:
         if metrics['total_scripts'] == 0:
             return 1.0
         
-        # For consistent prescribers (3+ months), use different test
-        if metrics['months_active'] >= self.min_months_for_consistency:
-            # Test: Is this temporal consistency significantly non-random?
-            # Use binomial test: probability of observing this many active months
-            n_months = 6  # Total observation period
-            k_active = metrics['months_active']
-            p_random = 1/3  # Null hypothesis: random prescribing
+        # Calculate p-value based on pattern strength, not fixed thresholds
+        import math
+        
+        # Use continuous function based on temporal consistency
+        # Higher consistency = stronger pattern = lower p-value
+        pattern_strength = metrics['temporal_consistency'] * metrics['volume_stability']
+        
+        if pattern_strength > 0:
+            # Use chi-square test for pattern significance
+            # Expected: uniform distribution across months
+            # Observed: actual distribution
+            n_months = max(metrics['months_active'], 1)
+            expected_per_month = metrics['total_scripts'] / n_months
             
-            # One-tailed test: is prescribing MORE consistent than random?
-            p_value = 1 - stats.binom.cdf(k_active - 1, n_months, p_random)
+            # Calculate chi-square statistic
+            if expected_per_month > 0:
+                chi_square = n_months * ((metrics['total_scripts'] / n_months - expected_per_month) ** 2) / expected_per_month
+                # Convert to p-value using chi-square distribution
+                p_value = 1 - stats.chi2.cdf(chi_square, df=n_months-1)
+            else:
+                p_value = 1.0
             
-            # Adjust for volume stability
-            if metrics['volume_stability'] > 0.7:
-                p_value *= 0.5  # More significant if volume is also stable
+            # Adjust based on pattern strength (continuous, not threshold-based)
+            p_value *= (1 - pattern_strength)
             
         else:
             # For sporadic prescribers, use proportion test
@@ -308,20 +311,33 @@ class TemporalProbabilityCalculator:
         }
     
     def _classify_pattern(self, prob1: float, prob2: float) -> str:
-        """Classify prescribing pattern based on probabilities"""
+        """Classify prescribing pattern using continuous functions"""
         
-        if prob1 >= 0.75 and prob2 >= 0.75:
-            return "Dual High Prescriber"
-        elif prob1 >= 0.75:
-            return f"Primary Drug 1 Prescriber"
-        elif prob2 >= 0.75:
-            return f"Primary Drug 2 Prescriber"
-        elif prob1 >= 0.5 or prob2 >= 0.5:
-            return "Selective Prescriber"
-        elif prob1 >= 0.25 or prob2 >= 0.25:
-            return "Occasional Prescriber"
-        else:
+        # Use relative dominance instead of fixed thresholds
+        total_prob = prob1 + prob2
+        
+        if total_prob < 0.01:
             return "Minimal/No Prescribing"
+        
+        # Calculate relative strengths
+        if total_prob > 0:
+            drug1_dominance = prob1 / total_prob
+            drug2_dominance = prob2 / total_prob
+        else:
+            drug1_dominance = drug2_dominance = 0.5
+        
+        # Classify based on relative patterns
+        if drug1_dominance > 0.8:
+            intensity = "Strong" if prob1 > 0.7 else "Moderate" if prob1 > 0.4 else "Mild"
+            return f"{intensity} Drug 1 Preference"
+        elif drug2_dominance > 0.8:
+            intensity = "Strong" if prob2 > 0.7 else "Moderate" if prob2 > 0.4 else "Mild"
+            return f"{intensity} Drug 2 Preference"
+        elif abs(drug1_dominance - drug2_dominance) < 0.2:
+            intensity = "High" if total_prob > 1.4 else "Moderate" if total_prob > 0.8 else "Low"
+            return f"{intensity} Dual Prescriber"
+        else:
+            return "Mixed Pattern Prescriber"
     
     def _print_summary_statistics(self, results_df: pd.DataFrame, drug1: str, drug2: str):
         """Print comprehensive summary statistics"""
@@ -330,18 +346,25 @@ class TemporalProbabilityCalculator:
         print(f"{'='*60}")
         print(f"Total prescribers analyzed: {len(results_df)}")
         
-        # Consistent prescribers (those who should have high scores)
-        consistent_drug1 = results_df[results_df[f'{drug1}_temporal_consistency'] >= 0.5]
-        consistent_drug2 = results_df[results_df[f'{drug2}_temporal_consistency'] >= 0.5]
+        # Group prescribers by consistency patterns (using percentiles, not fixed thresholds)
+        drug1_consistency = results_df[f'{drug1}_temporal_consistency']
+        drug2_consistency = results_df[f'{drug2}_temporal_consistency']
+        
+        # Use percentiles for grouping
+        high_percentile = drug1_consistency.quantile(0.75) if len(drug1_consistency) > 0 else 0
+        consistent_drug1 = results_df[drug1_consistency >= high_percentile]
+        
+        high_percentile2 = drug2_consistency.quantile(0.75) if len(drug2_consistency) > 0 else 0
+        consistent_drug2 = results_df[drug2_consistency >= high_percentile2]
         
         print(f"\n{drug1} Statistics:")
-        print(f"  Consistent prescribers (≥50% months): {len(consistent_drug1)}")
+        print(f"  Top quartile prescribers (75th percentile): {len(consistent_drug1)}")
         if len(consistent_drug1) > 0:
             print(f"  Their average probability: {consistent_drug1[f'{drug1}_probability'].mean():.3f}")
             print(f"  Probability range: {consistent_drug1[f'{drug1}_probability'].min():.3f} - {consistent_drug1[f'{drug1}_probability'].max():.3f}")
         
         print(f"\n{drug2} Statistics:")
-        print(f"  Consistent prescribers (≥50% months): {len(consistent_drug2)}")
+        print(f"  Top quartile prescribers (75th percentile): {len(consistent_drug2)}")
         if len(consistent_drug2) > 0:
             print(f"  Their average probability: {consistent_drug2[f'{drug2}_probability'].mean():.3f}")
             print(f"  Probability range: {consistent_drug2[f'{drug2}_probability'].min():.3f} - {consistent_drug2[f'{drug2}_probability'].max():.3f}")
