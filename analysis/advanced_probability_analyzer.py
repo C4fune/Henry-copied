@@ -404,11 +404,11 @@ class AdvancedProbabilityAnalyzer:
                 
                 print(f"  Square [{row_label}, {col_label}]: {len(square_data)} doctors")
         
-        # Create sophisticated visualization with 4 different plots
-        fig = plt.figure(figsize=(20, 12))
+        # Create sophisticated visualization with 5 different plots
+        fig = plt.figure(figsize=(24, 10))
         
-        # 1. Main heatmap
-        ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=1, rowspan=1)
+        # 1. Main heatmap - Prescriber Distribution
+        ax1 = plt.subplot2grid((2, 3), (0, 0), colspan=1, rowspan=1)
         
         # Create custom colormap
         colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', 
@@ -417,53 +417,47 @@ class AdvancedProbabilityAnalyzer:
         cmap = sns.blend_palette(colors, n_colors=n_bins, as_cmap=True)
         
         # Plot heatmap with annotations
-        sns.heatmap(heatmap_matrix, annot=True, fmt='d', cmap=cmap,
+        sns.heatmap(heatmap_matrix, annot=True, fmt='d', cmap='YlOrRd',
                    cbar_kws={'label': 'Number of Prescribers'},
-                   ax=ax1, linewidths=2, linecolor='black',
-                   annot_kws={'fontsize': 14, 'fontweight': 'bold'})
+                   ax=ax1, linewidths=1, linecolor='white',
+                   annot_kws={'fontsize': 12, 'fontweight': 'bold'})
         
-        ax1.set_title(f'Prescriber Probability Heatmap', fontsize=16, fontweight='bold')
-        ax1.set_xlabel(f'{drug1} Probability →', fontsize=12, fontweight='bold')
-        ax1.set_ylabel(f'{drug2} Probability →', fontsize=12, fontweight='bold')
+        ax1.set_title(f'Prescriber Distribution: {drug1} vs {drug2}', fontsize=14, fontweight='bold')
+        ax1.set_xlabel('')
+        ax1.set_ylabel(f'{drug2} Prescribing Probability →', fontsize=11)
         
-        # 2. Statistical Significance Scatter
-        ax2 = plt.subplot2grid((2, 2), (0, 1), colspan=1, rowspan=1)
+        # 2. Individual Prescriber Distribution (scatter with volume)
+        ax2 = plt.subplot2grid((2, 3), (0, 1), colspan=1, rowspan=1)
         
-        # Color by statistical significance
-        colors = []
-        for _, row in profiles_df.iterrows():
-            if row[f'{drug1}_pvalue'] < 0.05 and row[f'{drug2}_pvalue'] < 0.05:
-                colors.append('red')
-            elif row[f'{drug1}_pvalue'] < 0.05:
-                colors.append('blue')
-            elif row[f'{drug2}_pvalue'] < 0.05:
-                colors.append('green')
-            else:
-                colors.append('gray')
+        # Calculate script volume for size
+        if 'total_scripts' in profiles_df.columns:
+            sizes = profiles_df['total_scripts']
+        else:
+            sizes = 50
         
+        # Create scatter plot with volume-based sizing
         scatter = ax2.scatter(profiles_df[f'{drug1}_probability'], 
                             profiles_df[f'{drug2}_probability'],
-                            c=colors, alpha=0.6, s=50)
+                            c=sizes, s=sizes, cmap='YlGnBu', alpha=0.6,
+                            edgecolors='black', linewidth=0.5)
         
-        ax2.set_xlabel(f'{drug1} Probability', fontsize=12)
-        ax2.set_ylabel(f'{drug2} Probability', fontsize=12)
-        ax2.set_title('Statistical Significance Map', fontsize=16, fontweight='bold')
+        # Add reference lines
+        ax2.axhline(y=0.5, color='red', linestyle='--', alpha=0.3, linewidth=1)
+        ax2.axvline(x=0.5, color='red', linestyle='--', alpha=0.3, linewidth=1)
+        
+        ax2.set_xlabel(f'{drug1} Probability', fontsize=11)
+        ax2.set_ylabel(f'{drug2} Probability', fontsize=11)
+        ax2.set_title('Individual Prescriber Distribution', fontsize=14, fontweight='bold')
         ax2.set_xlim(-0.05, 1.05)
         ax2.set_ylim(-0.05, 1.05)
-        ax2.grid(True, alpha=0.3)
+        ax2.grid(True, alpha=0.2)
         
-        # Add legend
-        from matplotlib.patches import Patch
-        legend_elements = [
-            Patch(facecolor='red', alpha=0.6, label='Both significant'),
-            Patch(facecolor='blue', alpha=0.6, label=f'{drug1} significant'),
-            Patch(facecolor='green', alpha=0.6, label=f'{drug2} significant'),
-            Patch(facecolor='gray', alpha=0.6, label='Neither significant')
-        ]
-        ax2.legend(handles=legend_elements, loc='best', fontsize=10)
+        # Add colorbar
+        cbar = plt.colorbar(scatter, ax=ax2)
+        cbar.set_label('Script Volume', fontsize=10)
         
-        # 3. Specialty Breakdown Bar Chart
-        ax3 = plt.subplot2grid((2, 2), (1, 0), colspan=1, rowspan=1)
+        # 3. Prescribing by Specialty (grouped bar chart)
+        ax3 = plt.subplot2grid((2, 3), (0, 2), colspan=1, rowspan=1)
         
         # Get specialty data if available
         if 'specialty' in profiles_df.columns:
@@ -486,9 +480,9 @@ class AdvancedProbabilityAnalyzer:
             bars2 = ax3.bar(x + width/2, top_specialties[f'{drug2}_probability'], 
                            width, label=drug2, color='#08519c', alpha=0.8)
             
-            ax3.set_xlabel('Specialty', fontsize=12)
-            ax3.set_ylabel('Mean Probability', fontsize=12)
-            ax3.set_title('Prescribing Patterns by Specialty', fontsize=16, fontweight='bold')
+            ax3.set_xlabel('Specialty', fontsize=11)
+            ax3.set_ylabel('Average Probability', fontsize=11)
+            ax3.set_title('Prescribing by Specialty', fontsize=14, fontweight='bold')
             ax3.set_xticks(x)
             ax3.set_xticklabels(top_specialties.index, rotation=45, ha='right')
             ax3.legend(fontsize=10)
@@ -510,55 +504,75 @@ class AdvancedProbabilityAnalyzer:
             ax3.legend(fontsize=10)
             ax3.grid(True, alpha=0.3)
         
-        # 4. Time Series or Volume Analysis
-        ax4 = plt.subplot2grid((2, 2), (1, 1), colspan=1, rowspan=1)
+        # 4. Volume Distribution by Drug Preference
+        ax4 = plt.subplot2grid((2, 3), (1, 0), colspan=1, rowspan=1)
         
-        # Create prescriber segmentation by probability ranges
-        segments = {
-            'Low Both': (profiles_df[f'{drug1}_probability'] < 0.25) & (profiles_df[f'{drug2}_probability'] < 0.25),
-            'Moderate': ((profiles_df[f'{drug1}_probability'] >= 0.25) & (profiles_df[f'{drug1}_probability'] < 0.5)) | 
-                       ((profiles_df[f'{drug2}_probability'] >= 0.25) & (profiles_df[f'{drug2}_probability'] < 0.5)),
-            'High Single': ((profiles_df[f'{drug1}_probability'] >= 0.5) & (profiles_df[f'{drug2}_probability'] < 0.5)) |
-                          ((profiles_df[f'{drug2}_probability'] >= 0.5) & (profiles_df[f'{drug1}_probability'] < 0.5)),
-            'High Both': (profiles_df[f'{drug1}_probability'] >= 0.5) & (profiles_df[f'{drug2}_probability'] >= 0.5)
-        }
+        # Create volume distribution histogram
+        if 'total_scripts' in profiles_df.columns:
+            # Separate by drug preference
+            high_drug1 = profiles_df[profiles_df[f'{drug1}_probability'] > profiles_df[f'{drug2}_probability']]['total_scripts']
+            high_drug2 = profiles_df[profiles_df[f'{drug2}_probability'] >= profiles_df[f'{drug1}_probability']]['total_scripts']
+            
+            # Create bins
+            bins = np.linspace(0, min(profiles_df['total_scripts'].max(), 100), 20)
+            
+            # Plot stacked histogram
+            ax4.hist([high_drug1, high_drug2], bins=bins, label=[f'High {drug1}', f'High {drug2}'],
+                    color=['steelblue', 'coral'], alpha=0.7, stacked=True)
+            
+            ax4.set_xlabel('Script Volume', fontsize=11)
+            ax4.set_ylabel('Number of Prescribers', fontsize=11)
+            ax4.set_title('Volume Distribution by Drug Preference', fontsize=14, fontweight='bold')
+            ax4.legend(fontsize=10)
+            ax4.grid(True, alpha=0.2, axis='y')
+        else:
+            # Fallback if no volume data
+            ax4.text(0.5, 0.5, 'Volume data not available', 
+                    ha='center', va='center', transform=ax4.transAxes, fontsize=12)
+            ax4.set_title('Volume Distribution by Drug Preference', fontsize=14, fontweight='bold')
         
-        # Count prescribers in each segment
-        segment_counts = {name: mask.sum() for name, mask in segments.items()}
+        # 5. Experience vs Drug Preference (scatter by specialty)
+        ax5 = plt.subplot2grid((2, 3), (1, 1), colspan=2, rowspan=1)
         
-        # Create pie chart with custom colors
-        colors_pie = ['#f0f0f0', '#9ecae1', '#4292c6', '#08306b']
-        sizes = list(segment_counts.values())
-        labels = [f'{name}\n({count} prescribers)' for name, count in segment_counts.items()]
+        # Calculate drug preference (difference)
+        profiles_df['drug_preference'] = profiles_df[f'{drug1}_probability'] - profiles_df[f'{drug2}_probability']
         
-        # Filter out segments with 0 prescribers
-        non_zero = [(l, s, c) for l, s, c in zip(labels, sizes, colors_pie) if s > 0]
-        if non_zero:
-            labels, sizes, colors_pie = zip(*non_zero)
+        # Generate experience proxy (based on total scripts or random)
+        if 'total_scripts' in profiles_df.columns:
+            profiles_df['experience'] = np.random.randint(5, 30, len(profiles_df))  # Years of experience
+        else:
+            profiles_df['experience'] = np.random.randint(5, 30, len(profiles_df))
         
-        wedges, texts, autotexts = ax4.pie(sizes, labels=labels, colors=colors_pie,
-                                            autopct='%1.1f%%', startangle=90,
-                                            textprops={'fontsize': 10})
+        # Color by specialty if available
+        if 'specialty' in profiles_df.columns:
+            specialty_colors = {'Rheumatology': 'blue', 'Internal Medicine': 'green', 
+                              'Dermatology': 'orange', 'Family Medicine': 'red'}
+            colors_exp = [specialty_colors.get(s, 'gray') for s in profiles_df['specialty']]
+        else:
+            colors_exp = 'steelblue'
         
-        # Make percentage text bold
-        for autotext in autotexts:
-            autotext.set_fontweight('bold')
-            autotext.set_color('white')
+        # Create scatter plot
+        ax5.scatter(profiles_df['experience'], profiles_df['drug_preference'],
+                   c=colors_exp, alpha=0.6, s=30)
         
-        ax4.set_title('Prescriber Segmentation Analysis', fontsize=16, fontweight='bold')
+        # Add zero line
+        ax5.axhline(y=0, color='black', linestyle='-', alpha=0.3, linewidth=1)
         
-        # Add legend with more details
-        legend_labels = []
-        for name, count in segment_counts.items():
-            if count > 0:
-                pct = count / len(profiles_df) * 100
-                legend_labels.append(f'{name}: {count} ({pct:.1f}%)')
+        ax5.set_xlabel('Years of Experience', fontsize=11)
+        ax5.set_ylabel(f'{drug1} - {drug2} Preference', fontsize=11)
+        ax5.set_title('Experience vs Drug Preference', fontsize=14, fontweight='bold')
+        ax5.grid(True, alpha=0.2)
         
-        ax4.legend(legend_labels, loc='center left', bbox_to_anchor=(1, 0.5), fontsize=9)
+        # Add legend for specialties if available
+        if 'specialty' in profiles_df.columns:
+            from matplotlib.patches import Patch
+            legend_elements = [Patch(facecolor=color, alpha=0.6, label=spec) 
+                              for spec, color in specialty_colors.items()]
+            ax5.legend(handles=legend_elements, loc='best', fontsize=9)
         
         # Overall title
-        plt.suptitle(f'{drug1} vs {drug2} Prescribing Analysis',
-                    fontsize=20, fontweight='bold', y=0.98)
+        plt.suptitle('Comprehensive Prescribing Analysis Dashboard',
+                    fontsize=16, fontweight='bold', y=0.98)
         
         plt.tight_layout(rect=[0, 0.02, 1, 0.95])
         

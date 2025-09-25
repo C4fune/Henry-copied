@@ -1,7 +1,7 @@
 PRESCRIBER ANALYSIS REPORT
 Query: which doctors prescribe tremfya vs rinvoq
 Analysis: TREMFYA vs RINVOQ
-Generated: September 25, 2025 at 04:32 AM
+Generated: September 25, 2025 at 04:39 AM
 ================================================================================
 
 QUADRANT 1: TREMFYA 0-25%, RINVOQ 75-100%
