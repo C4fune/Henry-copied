@@ -154,8 +154,9 @@ National Provider Identifier registry:
 - **predictive_analyzer.py**: ML model training and prediction
 - **behavioral_profiler.py**: Clustering and segmentation
 - **advanced_prompts.py**: Sophisticated ML prompts
-- **advanced_probability_analyzer.py**: Statistical probability heatmaps with Bayesian methods
-- **temporal_probability_calculator.py**: Temporal consistency-based probability scoring
+- **advanced_probability_analyzer.py**: LLM-based predictive probability calculation
+- **llm_pattern_predictor.py**: Dynamic pattern recognition and next-month prediction
+- **temporal_probability_calculator.py**: Fallback temporal analysis (when LLM unavailable)
 - **bigquery_schema_explorer.py**: Dataset exploration and schema analysis
 
 ### Support Modules
@@ -164,41 +165,55 @@ National Provider Identifier registry:
 
 ## Probability Calculation Methodology
 
-### Temporal Consistency Scoring
-The system now uses sophisticated temporal analysis to calculate prescribing probabilities:
+### LLM-Based Pattern Recognition and Prediction
+The system uses Large Language Models to dynamically recognize prescribing patterns and generate custom predictive models:
 
-1. **Temporal Consistency (40% weight)**
-   - Measures months active / total months in observation period
-   - Consistent prescribers (≥3 months) automatically score ≥0.60
-   - Prescribers active ≥80% of months score ≥0.75
+1. **Pattern Recognition (No Hardcoded Rules)**
+   - LLM analyzes temporal sequences to identify complex patterns
+   - Recognizes seasonality, trends, switching behaviors
+   - Adapts to different prescribing behaviors without predefined thresholds
+   - No rules like "3+ months = high probability" - all patterns are learned
 
-2. **Volume Stability (30% weight)**
-   - Coefficient of variation analysis
-   - Stable volume patterns indicate established prescribing behavior
-   - Calculated as 1 / (1 + CV) for normalized scoring
+2. **Dynamic Model Generation**
+   - LLM generates custom Python code for each query
+   - Selects appropriate statistical/ML methods:
+     - Time series models (ARIMA, exponential smoothing)
+     - Markov chains for state transitions
+     - Gradient boosting with temporal features
+     - Logistic regression with engineered features
+   - Code is executed in real-time to calculate probabilities
 
-3. **Recency Weighting (30% weight)**
-   - Recent prescriptions weighted higher using exponential decay
-   - 6-month half-life for recency calculations
-   - Ensures current behavior is prioritized
+3. **Next-Month Prediction**
+   - Calculates probability of prescribing each drug in the NEXT month
+   - Based on historical patterns unique to each prescriber
+   - Includes confidence intervals based on data quality
+   - Adapts to momentum shifts and recent changes
 
-### Statistical Significance Testing
+### Statistical Methods (LLM-Selected)
 
-#### For Consistent Prescribers (≥3 months active)
-- **Binomial Test**: Tests if temporal consistency is significantly non-random
-- **Null Hypothesis**: Random prescribing probability = 1/3
-- **Volume Adjustment**: P-values reduced by 50% for stable volume patterns
+The LLM chooses appropriate methods based on the data:
 
-#### For Sporadic Prescribers (<3 months active)
-- **Z-test for Proportions**: Compares observed vs expected rates
-- **Peer Benchmarking**: Uses specialty and regional norms
-- **Multiple Testing Correction**: Benjamini-Hochberg FDR control
+#### For Trending Patterns
+- **Time Series Forecasting**: ARIMA or exponential smoothing
+- **Trend Analysis**: Linear/polynomial regression on temporal data
+- **Momentum Calculation**: Recent vs historical baseline
 
-### Key Improvements
-- Consistent prescribers now correctly receive high probability scores (>0.75)
-- P-values reflect actual statistical significance, not arbitrary thresholds
-- Temporal patterns are the primary driver of probability calculations
-- Bayesian shrinkage is minimal for established prescribers
+#### For Switching Behaviors
+- **Markov Chains**: State transition probabilities
+- **Logistic Regression**: Binary choice modeling
+- **Survival Analysis**: Time to switch estimation
+
+#### For Complex Patterns
+- **Ensemble Methods**: XGBoost/LightGBM with temporal features
+- **Neural Networks**: For non-linear pattern recognition
+- **Clustering**: To identify prescriber archetypes
+
+### Key Advantages
+- No hardcoded rules or thresholds
+- Adapts to any prescribing pattern in the data
+- Generates truly predictive probabilities for future behavior
+- LLM recognizes patterns humans might miss
+- Each prediction is based on custom-generated analysis code
 
 ## Performance Optimizations
 

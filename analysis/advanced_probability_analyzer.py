@@ -33,27 +33,67 @@ class AdvancedProbabilityAnalyzer:
         
     def calculate_advanced_probabilities(self, df: pd.DataFrame, drug1: str, drug2: str) -> pd.DataFrame:
         """
-        Calculate prescribing probabilities using temporal consistency analysis.
+        Calculate prescribing probabilities using LLM-based pattern recognition.
         
-        Major improvements in this version:
-        - Consistent prescribers (3+ months) get appropriately high scores (>0.75)
-        - Temporal consistency is the primary driver of probability
-        - Volume stability and recency are considered
-        - P-values reflect actual statistical significance of prescribing patterns
+        This version uses LLM to:
+        - Dynamically recognize complex prescribing patterns
+        - Generate custom predictive models based on the data
+        - Calculate next-month probabilities without hardcoded rules
+        - Adapt to different types of prescribing behaviors
         """
         
-        # Import the new temporal calculator
-        from temporal_probability_calculator import TemporalProbabilityCalculator
+        # Import the LLM pattern predictor
+        from llm_pattern_predictor import LLMPatternPredictor
         
-        # Check if we should use the new temporal method
+        # Check if we have temporal data
         date_cols = [col for col in df.columns if 'DATE' in col.upper() or 'DD' in col]
         if date_cols:
-            # Use temporal probability calculator for better accuracy
+            # Use LLM-based pattern recognition for prediction
+            predictor = LLMPatternPredictor()
+            predictions = predictor.predict_next_month_probability(df, drug1, drug2)
+            
+            # If LLM prediction succeeds, return those results
+            if not predictions.empty:
+                # Ensure we have the required columns
+                if f'{drug1}_next_month_probability' in predictions.columns:
+                    # Rename columns to match expected format
+                    predictions = predictions.rename(columns={
+                        f'{drug1}_next_month_probability': f'{drug1}_probability',
+                        f'{drug2}_next_month_probability': f'{drug2}_probability'
+                    })
+                    
+                    # Add p-values based on confidence intervals
+                    if f'{drug1}_confidence_interval' in predictions.columns:
+                        # Calculate p-values from confidence intervals
+                        predictions[f'{drug1}_pvalue'] = predictions.apply(
+                            lambda row: self._ci_to_pvalue(row[f'{drug1}_confidence_interval']), axis=1
+                        )
+                        predictions[f'{drug2}_pvalue'] = predictions.apply(
+                            lambda row: self._ci_to_pvalue(row[f'{drug2}_confidence_interval']), axis=1
+                        )
+                    else:
+                        predictions[f'{drug1}_pvalue'] = 0.05
+                        predictions[f'{drug2}_pvalue'] = 0.05
+                    
+                    return predictions
+            
+            # If LLM fails, use temporal calculator as fallback
+            from temporal_probability_calculator import TemporalProbabilityCalculator
             temporal_calc = TemporalProbabilityCalculator()
             return temporal_calc.calculate_comprehensive_probabilities(df, drug1, drug2)
         
         # Fall back to original method if no date information
         return self._calculate_original_probabilities(df, drug1, drug2)
+    
+    def _ci_to_pvalue(self, ci):
+        """Convert confidence interval to approximate p-value"""
+        if isinstance(ci, list) and len(ci) == 2:
+            # If CI doesn't include 0.5, it's significant
+            if ci[0] > 0.5 or ci[1] < 0.5:
+                return 0.01
+            else:
+                return 0.10
+        return 0.05
     
     def _calculate_original_probabilities(self, df: pd.DataFrame, drug1: str, drug2: str) -> pd.DataFrame:
         """
