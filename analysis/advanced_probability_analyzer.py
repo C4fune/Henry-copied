@@ -33,6 +33,30 @@ class AdvancedProbabilityAnalyzer:
         
     def calculate_advanced_probabilities(self, df: pd.DataFrame, drug1: str, drug2: str) -> pd.DataFrame:
         """
+        Calculate prescribing probabilities using temporal consistency analysis.
+        
+        Major improvements in this version:
+        - Consistent prescribers (3+ months) get appropriately high scores (>0.75)
+        - Temporal consistency is the primary driver of probability
+        - Volume stability and recency are considered
+        - P-values reflect actual statistical significance of prescribing patterns
+        """
+        
+        # Import the new temporal calculator
+        from temporal_probability_calculator import TemporalProbabilityCalculator
+        
+        # Check if we should use the new temporal method
+        date_cols = [col for col in df.columns if 'DATE' in col.upper() or 'DD' in col]
+        if date_cols:
+            # Use temporal probability calculator for better accuracy
+            temporal_calc = TemporalProbabilityCalculator()
+            return temporal_calc.calculate_comprehensive_probabilities(df, drug1, drug2)
+        
+        # Fall back to original method if no date information
+        return self._calculate_original_probabilities(df, drug1, drug2)
+    
+    def _calculate_original_probabilities(self, df: pd.DataFrame, drug1: str, drug2: str) -> pd.DataFrame:
+        """
         Calculate probabilities using advanced research methods:
         1. Empirical Bayes estimation for small sample correction
         2. Temporal weighting (recent prescriptions weighted more)

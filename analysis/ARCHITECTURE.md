@@ -4,6 +4,45 @@
 
 DeepMind-quality pharmaceutical analytics system combining descriptive analytics with predictive modeling and behavioral profiling. Uses LLM-generated code (GPT-4o) with state-of-the-art ML techniques for comprehensive market intelligence.
 
+## Available BigQuery Datasets
+
+### 1. rx_claims (Prescription Claims)
+Primary prescription data with comprehensive drug dispensing information:
+- **Prescriber Information**: NPI, name, specialty, state, ZIP
+- **Drug Details**: NDC, brand name, drug class/subclass
+- **Temporal Data**: RX_ANCHOR_DD, SERVICE_DATE_DD
+- **Financial**: TOTAL_PAID_AMT, PATIENT_TO_PAY_AMT
+- **Quantities**: DISPENSED_QUANTITY_VAL, DAYS_SUPPLY_VAL
+- **Payer Info**: PAYER_PLAN_CHANNEL_NM
+
+### 2. medical_claims
+Medical procedures and diagnoses data:
+- **Diagnosis Codes**: PRIMARY_DX_CD, SECONDARY_DX_CD
+- **Procedure Information**: CPT codes, procedure dates
+- **Provider Details**: Performing physician NPI
+- **Cost Data**: Billed amounts, paid amounts
+
+### 3. providers_bio
+Healthcare provider demographics and characteristics:
+- **Demographics**: Age, gender, years in practice
+- **Education**: Medical school, graduation year
+- **Practice Info**: Practice size, location details
+- **Affiliations**: Hospital affiliations, group practices
+
+### 4. provider_payments
+Industry payments to healthcare providers:
+- **Payment Types**: Speaking fees, consulting, research
+- **Payment Details**: Amount, date, paying company
+- **Product Association**: Related drug/device
+- **Nature of Payment**: Education, entertainment, etc.
+
+### 5. us_npi_doctors
+National Provider Identifier registry:
+- **Complete Provider Info**: All registered NPIs
+- **Taxonomy Codes**: Detailed specialty classifications
+- **Practice Locations**: All practice addresses
+- **Credentials**: Board certifications, licenses
+
 ## Core Capabilities
 
 ### 1. Descriptive Analytics
@@ -116,16 +155,56 @@ DeepMind-quality pharmaceutical analytics system combining descriptive analytics
 - **behavioral_profiler.py**: Clustering and segmentation
 - **advanced_prompts.py**: Sophisticated ML prompts
 - **advanced_probability_analyzer.py**: Statistical probability heatmaps with Bayesian methods
+- **temporal_probability_calculator.py**: Temporal consistency-based probability scoring
+- **bigquery_schema_explorer.py**: Dataset exploration and schema analysis
 
 ### Support Modules
 - **visualization.py**: Multi-panel chart generation
 - **config.py**: API keys and model configuration
 
+## Probability Calculation Methodology
+
+### Temporal Consistency Scoring
+The system now uses sophisticated temporal analysis to calculate prescribing probabilities:
+
+1. **Temporal Consistency (40% weight)**
+   - Measures months active / total months in observation period
+   - Consistent prescribers (≥3 months) automatically score ≥0.60
+   - Prescribers active ≥80% of months score ≥0.75
+
+2. **Volume Stability (30% weight)**
+   - Coefficient of variation analysis
+   - Stable volume patterns indicate established prescribing behavior
+   - Calculated as 1 / (1 + CV) for normalized scoring
+
+3. **Recency Weighting (30% weight)**
+   - Recent prescriptions weighted higher using exponential decay
+   - 6-month half-life for recency calculations
+   - Ensures current behavior is prioritized
+
+### Statistical Significance Testing
+
+#### For Consistent Prescribers (≥3 months active)
+- **Binomial Test**: Tests if temporal consistency is significantly non-random
+- **Null Hypothesis**: Random prescribing probability = 1/3
+- **Volume Adjustment**: P-values reduced by 50% for stable volume patterns
+
+#### For Sporadic Prescribers (<3 months active)
+- **Z-test for Proportions**: Compares observed vs expected rates
+- **Peer Benchmarking**: Uses specialty and regional norms
+- **Multiple Testing Correction**: Benjamini-Hochberg FDR control
+
+### Key Improvements
+- Consistent prescribers now correctly receive high probability scores (>0.75)
+- P-values reflect actual statistical significance, not arbitrary thresholds
+- Temporal patterns are the primary driver of probability calculations
+- Bayesian shrinkage is minimal for established prescribers
+
 ## Performance Optimizations
 
 ### Data Management
 - **Smart loading**: Only required datasets and columns
-- **Time filtering**: Last 3 months for training (configurable)
+- **Time filtering**: Last 6 months for temporal analysis (configurable)
 - **Caching**: 5-minute cache for repeated queries
 - **Sampling**: 100K rows for speed, full data for accuracy
 
