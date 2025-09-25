@@ -1,0 +1,208 @@
+PRESCRIBER ANALYSIS REPORT
+Query: do a predictive model on which doctors are more likely to prescribe rinvoq (Abbvie) vs Xeljanz (Pfizer)
+Analysis: RINVOQ vs XELJANZ
+Generated: September 25, 2025 at 01:58 PM
+================================================================================
+
+QUADRANT 1: RINVOQ 0-25%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 0-25%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 2: RINVOQ 25-50%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 25-50%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 3: RINVOQ 50-75%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 50-75%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 4: RINVOQ 75-100%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 5: RINVOQ 0-25%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 2 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 27.5 (median: 27.5, std: 9.2)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 0 (0%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.184 (median: 0.184)
+• XELJANZ mean probability: 0.525 (median: 0.525)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 1/2 prescribers (50%) show significant preference
+• XELJANZ: 2/2 prescribers (100%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 7 scripts (17.1%)
+• XELJANZ: 34 scripts (82.9%)
+
+QUADRANT 6: RINVOQ 25-50%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 25 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 50.0 (median: 49.0, std: 8.4)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 0 (0%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.333 (median: 0.332)
+• XELJANZ mean probability: 0.541 (median: 0.537)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 0/25 prescribers (0%) show significant preference
+• XELJANZ: 25/25 prescribers (100%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 420 scripts (36.2%)
+• XELJANZ: 740 scripts (63.8%)
+
+QUADRANT 7: RINVOQ 50-75%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 50-75%, XELJANZ 50-75%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 8: RINVOQ 75-100%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 50-75%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 9: RINVOQ 0-25%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 81 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 33.8 (median: 32.0, std: 11.1)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 5 (6%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.199 (median: 0.209)
+• XELJANZ mean probability: 0.342 (median: 0.328)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 33/81 prescribers (41%) show significant preference
+• XELJANZ: 18/81 prescribers (22%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 441 scripts (30.3%)
+• XELJANZ: 1014 scripts (69.7%)
+
+QUADRANT 10: RINVOQ 25-50%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 296 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 44.2 (median: 46.0, std: 11.5)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 4 (1%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.362 (median: 0.357)
+• XELJANZ mean probability: 0.346 (median: 0.341)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 45/296 prescribers (15%) show significant preference
+• XELJANZ: 76/296 prescribers (26%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 4882 scripts (50.6%)
+• XELJANZ: 4768 scripts (49.4%)
+
+QUADRANT 11: RINVOQ 50-75%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 34 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 51.1 (median: 50.0, std: 8.8)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 0 (0%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.543 (median: 0.535)
+• XELJANZ mean probability: 0.331 (median: 0.333)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 34/34 prescribers (100%) show significant preference
+• XELJANZ: 5/34 prescribers (15%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 1019 scripts (63.0%)
+• XELJANZ: 598 scripts (37.0%)
+
+QUADRANT 12: RINVOQ 75-100%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 25-50%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 13: RINVOQ 0-25%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 324 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 16.2 (median: 15.0, std: 6.5)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 263 (81%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.185 (median: 0.185)
+• XELJANZ mean probability: 0.152 (median: 0.145)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 117/324 prescribers (36%) show significant preference
+• XELJANZ: 96/324 prescribers (30%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 617 scripts (53.3%)
+• XELJANZ: 541 scripts (46.7%)
+
+KEY CORRELATIONS & INSIGHTS:
+• LOW JAK INHIBITOR USAGE: May prefer alternative therapies or treat different patient populations
+
+QUADRANT 14: RINVOQ 25-50%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 219 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 29.1 (median: 28.0, std: 13.0)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 64 (29%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.336 (median: 0.317)
+• XELJANZ mean probability: 0.175 (median: 0.170)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 18/219 prescribers (8%) show significant preference
+• XELJANZ: 65/219 prescribers (30%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 2331 scripts (70.7%)
+• XELJANZ: 964 scripts (29.3%)
+
+QUADRANT 15: RINVOQ 50-75%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+PRESCRIBER COUNT: 19 doctors in this quadrant
+
+VOLUME METRICS:
+• Average scripts/month: 44.0 (median: 49.0, std: 11.5)
+• High-volume prescribers (>100 scripts): 0 (0%)
+• Low-volume prescribers (<20 scripts): 0 (0%)
+
+PROBABILITY DISTRIBUTION:
+• RINVOQ mean probability: 0.564 (median: 0.539)
+• XELJANZ mean probability: 0.175 (median: 0.175)
+
+STATISTICAL SIGNIFICANCE (p<0.05):
+• RINVOQ: 19/19 prescribers (100%) show significant preference
+• XELJANZ: 8/19 prescribers (42%) show significant preference
+
+MARKET SHARE IN QUADRANT:
+• RINVOQ: 520 scripts (80.2%)
+• XELJANZ: 128 scripts (19.8%)
+
+QUADRANT 16: RINVOQ 75-100%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 0-25%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.

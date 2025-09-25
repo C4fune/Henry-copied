@@ -1,0 +1,69 @@
+PRESCRIBER ANALYSIS REPORT
+Query: do a predictive model on which doctors are more likely to prescribe rinvoq (Abbvie) vs Xeljanz (Pfizer)
+Analysis: RINVOQ vs XELJANZ
+Generated: September 25, 2025 at 01:08 PM
+================================================================================
+
+QUADRANT 1: RINVOQ 0-25%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 0-25%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 2: RINVOQ 25-50%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 25-50%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 3: RINVOQ 50-75%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 50-75%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 4: RINVOQ 75-100%, XELJANZ 75-100%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 75-100%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 5: RINVOQ 0-25%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+These 2 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 2) writing 28 scripts monthly. With 1 significant for RINVOQ and 2 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 6: RINVOQ 25-50%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+These 25 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 25) writing 50 scripts monthly. With 0 significant for RINVOQ and 25 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 7: RINVOQ 50-75%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 50-75%, XELJANZ 50-75%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 8: RINVOQ 75-100%, XELJANZ 50-75%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 50-75%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 9: RINVOQ 0-25%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+These 81 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 81) writing 34 scripts monthly. With 33 significant for RINVOQ and 18 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 10: RINVOQ 25-50%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+These 296 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 296) writing 44 scripts monthly. With 45 significant for RINVOQ and 76 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 11: RINVOQ 50-75%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+These 34 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 34) writing 51 scripts monthly. With 34 significant for RINVOQ and 5 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 12: RINVOQ 75-100%, XELJANZ 25-50%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 25-50%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.
+
+QUADRANT 13: RINVOQ 0-25%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+This segment has 324 prescribers who rarely use either drug. Primarily Mixed doctors (0 out of 324) averaging 16 scripts monthly. With only 117 significant for RINVOQ and 96 for XELJANZ, they likely rely on alternative therapies or treat milder cases not requiring these medications. This group may lack familiarity with these newer options or face cost/access barriers. They represent growth potential through education about appropriate patient selection and unique benefits these therapies offer.
+
+QUADRANT 14: RINVOQ 25-50%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+These 219 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 219) writing 29 scripts monthly. With 18 significant for RINVOQ and 65 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 15: RINVOQ 50-75%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+These 19 prescribers show selective usage of both drugs. The group includes Mixed specialists (0 out of 19) writing 44 scripts monthly. With 19 significant for RINVOQ and 8 for XELJANZ, they appear to evaluate each case individually. Their prescribing suggests a measured approach, likely considering factors like disease severity, patient history, and insurance coverage. Understanding their decision-making process could provide insights into real-world treatment selection.
+
+QUADRANT 16: RINVOQ 75-100%, XELJANZ 0-25%
+--------------------------------------------------------------------------------
+No prescribers currently fall into this category (RINVOQ 75-100%, XELJANZ 0-25%). This empty quadrant may indicate this combination is uncommon in clinical practice. Monitoring this segment could reveal emerging prescribing trends.

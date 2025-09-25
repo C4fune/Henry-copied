@@ -600,59 +600,10 @@ Top-right quadrant (high probability for both) contains prescribers most likely 
                 report_lines.append("-"*80)
                 
                 if n_docs > 0:
-                    # Calculate real statistics from the data
-                    specialties = segment['SPECIALTY'].value_counts() if 'SPECIALTY' in segment.columns else pd.Series()
-                    top_spec = specialties.index[0] if len(specialties) > 0 else 'Mixed'
-                    spec_count = specialties.iloc[0] if len(specialties) > 0 else 0
-                    
-                    avg_volume = segment['TOTAL_SCRIPTS'].mean() if 'TOTAL_SCRIPTS' in segment.columns else segment['total_scripts'].mean() if 'total_scripts' in segment.columns else 50
-                    avg_experience = segment['YEARS_IN_PRACTICE'].mean() if 'YEARS_IN_PRACTICE' in segment.columns else 15
-                    
-                    # Count significant prescribers
-                    sig_drug1 = (segment[f'{drug1}_pvalue'] < 0.05).sum() if f'{drug1}_pvalue' in segment.columns else 0
-                    sig_drug2 = (segment[f'{drug2}_pvalue'] < 0.05).sum() if f'{drug2}_pvalue' in segment.columns else 0
-                    
-                    # Generate natural language description based on actual quadrant position
-                    if '75-100%' in t_label and '75-100%' in r_label:
-                        description = f"This quadrant contains {n_docs} doctors who actively prescribe both medications. "
-                        description += f"The majority are {top_spec} specialists ({spec_count} out of {n_docs}). "
-                        description += f"These prescribers average {avg_volume:.0f} scripts monthly, suggesting they handle complex cases requiring diverse treatment options. "
-                        description += f"With {sig_drug1} showing statistically significant {drug1} preference and {sig_drug2} for {drug2}, "
-                        description += f"they appear to match treatments to specific patient profiles. Their dual usage indicates recognition of unique benefits in each therapy. "
-                        description += f"These doctors are valuable for understanding optimal patient selection criteria between the two drugs."
-                    
-                    elif '75-100%' in t_label and '0-25%' in r_label:
-                        description = f"These {n_docs} prescribers strongly favor {drug1} over {drug2}. "
-                        description += f"Led by {top_spec} specialists ({spec_count} out of {n_docs}), they write about {avg_volume:.0f} prescriptions monthly. "
-                        description += f"With {sig_drug1} doctors showing statistically significant {drug1} preference, this group has likely seen consistent positive outcomes. "
-                        description += f"Their minimal {drug2} usage (only {sig_drug2} significant prescribers) suggests either strong satisfaction with {drug1} "
-                        description += f"or perceived barriers to {drug2} adoption. Understanding their patient demographics and treatment philosophies "
-                        description += f"could reveal why {drug1} works particularly well in their practice."
-                    
-                    elif '0-25%' in t_label and '75-100%' in r_label:
-                        description = f"This group of {n_docs} doctors strongly prefers {drug2} over {drug1}. "
-                        description += f"Dominated by {top_spec} physicians ({spec_count} out of {n_docs}), they average {avg_volume:.0f} monthly scripts. "
-                        description += f"With {sig_drug2} showing significant {drug2} preference versus only {sig_drug1} for {drug1}, "
-                        description += f"their prescribing pattern is clear. This preference might reflect {drug2}'s efficacy in their specific patient populations "
-                        description += f"or positive experiences with its safety profile. They represent an opportunity to understand what drives "
-                        description += f"strong brand loyalty and identify potential barriers to {drug1} adoption."
-                    
-                    elif '0-25%' in t_label and '0-25%' in r_label:
-                        description = f"This segment has {n_docs} prescribers who rarely use either drug. "
-                        description += f"Primarily {top_spec} doctors ({spec_count} out of {n_docs}) averaging {avg_volume:.0f} scripts monthly. "
-                        description += f"With only {sig_drug1} significant for {drug1} and {sig_drug2} for {drug2}, "
-                        description += f"they likely rely on alternative therapies or treat milder cases not requiring these medications. "
-                        description += f"This group may lack familiarity with these newer options or face cost/access barriers. "
-                        description += f"They represent growth potential through education about appropriate patient selection and unique benefits these therapies offer."
-                    
-                    else:
-                        # Mixed usage patterns
-                        description = f"These {n_docs} prescribers show selective usage of both drugs. "
-                        description += f"The group includes {top_spec} specialists ({spec_count} out of {n_docs}) writing {avg_volume:.0f} scripts monthly. "
-                        description += f"With {sig_drug1} significant for {drug1} and {sig_drug2} for {drug2}, "
-                        description += f"they appear to evaluate each case individually. Their prescribing suggests a measured approach, "
-                        description += f"likely considering factors like disease severity, patient history, and insurance coverage. "
-                        description += f"Understanding their decision-making process could provide insights into real-world treatment selection."
+                    # Extract comprehensive statistics and traits
+                    description = self._generate_fact_based_quadrant_analysis(
+                        segment, drug1, drug2, n_docs, t_label, r_label
+                    )
                     
                 else:
                     description = f"No prescribers currently fall into this category ({drug1} {t_label}, {drug2} {r_label}). "
@@ -664,6 +615,137 @@ Top-right quadrant (high probability for both) contains prescribers most likely 
                 quadrant_num += 1
         
         return '\n'.join(report_lines)
+    
+    def _generate_fact_based_quadrant_analysis(self, segment, drug1, drug2, n_docs, x_range, y_range):
+        """Generate fact-based analysis with concrete traits and correlations"""
+        facts = []
+        
+        # Extract all available columns for analysis
+        specialty_col = 'SPECIALTY' if 'SPECIALTY' in segment.columns else 'PRESCRIBER_NPI_HCP_SEGMENT_DESC' if 'PRESCRIBER_NPI_HCP_SEGMENT_DESC' in segment.columns else None
+        volume_col = 'TOTAL_SCRIPTS' if 'TOTAL_SCRIPTS' in segment.columns else 'total_scripts' if 'total_scripts' in segment.columns else None
+        
+        # Core statistics
+        facts.append(f"PRESCRIBER COUNT: {n_docs} doctors in this quadrant")
+        
+        # Volume analysis with specific numbers
+        if volume_col:
+            avg_volume = segment[volume_col].mean()
+            median_volume = segment[volume_col].median()
+            std_volume = segment[volume_col].std()
+            high_volume = (segment[volume_col] > 100).sum()
+            low_volume = (segment[volume_col] < 20).sum()
+            
+            facts.append(f"\nVOLUME METRICS:")
+            facts.append(f"• Average scripts/month: {avg_volume:.1f} (median: {median_volume:.1f}, std: {std_volume:.1f})")
+            facts.append(f"• High-volume prescribers (>100 scripts): {high_volume} ({high_volume/n_docs*100:.0f}%)")
+            facts.append(f"• Low-volume prescribers (<20 scripts): {low_volume} ({low_volume/n_docs*100:.0f}%)")
+        
+        # Probability analysis with actual values
+        drug1_prob_mean = segment[f'{drug1}_probability'].mean()
+        drug2_prob_mean = segment[f'{drug2}_probability'].mean()
+        drug1_prob_median = segment[f'{drug1}_probability'].median()
+        drug2_prob_median = segment[f'{drug2}_probability'].median()
+        
+        facts.append(f"\nPROBABILITY DISTRIBUTION:")
+        facts.append(f"• {drug1} mean probability: {drug1_prob_mean:.3f} (median: {drug1_prob_median:.3f})")
+        facts.append(f"• {drug2} mean probability: {drug2_prob_mean:.3f} (median: {drug2_prob_median:.3f})")
+        
+        # Statistical significance analysis
+        sig_drug1 = (segment[f'{drug1}_pvalue'] < 0.05).sum() if f'{drug1}_pvalue' in segment.columns else 0
+        sig_drug2 = (segment[f'{drug2}_pvalue'] < 0.05).sum() if f'{drug2}_pvalue' in segment.columns else 0
+        
+        if sig_drug1 > 0 or sig_drug2 > 0:
+            facts.append(f"\nSTATISTICAL SIGNIFICANCE (p<0.05):")
+            facts.append(f"• {drug1}: {sig_drug1}/{n_docs} prescribers ({sig_drug1/n_docs*100:.0f}%) show significant preference")
+            facts.append(f"• {drug2}: {sig_drug2}/{n_docs} prescribers ({sig_drug2/n_docs*100:.0f}%) show significant preference")
+        
+        # Specialty breakdown with actual counts
+        if specialty_col:
+            specialties = segment[specialty_col].value_counts()
+            if len(specialties) > 0:
+                facts.append(f"\nSPECIALTY BREAKDOWN:")
+                for i, (spec, count) in enumerate(specialties.head(3).items()):
+                    pct = count/n_docs*100
+                    # Get average volume for this specialty
+                    spec_avg_vol = segment[segment[specialty_col] == spec][volume_col].mean() if volume_col else 0
+                    facts.append(f"• {spec}: {count} doctors ({pct:.0f}%), avg {spec_avg_vol:.0f} scripts/month")
+        
+        # Temporal consistency if available
+        if f'{drug1}_temporal_consistency' in segment.columns:
+            drug1_consistency = segment[f'{drug1}_temporal_consistency'].mean()
+            drug2_consistency = segment[f'{drug2}_temporal_consistency'].mean()
+            consistent_drug1 = (segment[f'{drug1}_temporal_consistency'] > 0.5).sum()
+            consistent_drug2 = (segment[f'{drug2}_temporal_consistency'] > 0.5).sum()
+            
+            facts.append(f"\nTEMPORAL PATTERNS:")
+            facts.append(f"• {drug1} consistency score: {drug1_consistency:.2f} ({consistent_drug1} consistent prescribers)")
+            facts.append(f"• {drug2} consistency score: {drug2_consistency:.2f} ({consistent_drug2} consistent prescribers)")
+        
+        # Experience correlation
+        if 'YEARS_IN_PRACTICE' in segment.columns:
+            exp_mean = segment['YEARS_IN_PRACTICE'].mean()
+            exp_median = segment['YEARS_IN_PRACTICE'].median()
+            new_docs = (segment['YEARS_IN_PRACTICE'] < 5).sum()
+            experienced = (segment['YEARS_IN_PRACTICE'] > 20).sum()
+            
+            facts.append(f"\nEXPERIENCE PROFILE:")
+            facts.append(f"• Average years in practice: {exp_mean:.1f} (median: {exp_median:.1f})")
+            facts.append(f"• New doctors (<5 years): {new_docs} ({new_docs/n_docs*100:.0f}%)")
+            facts.append(f"• Experienced (>20 years): {experienced} ({experienced/n_docs*100:.0f}%)")
+        
+        # Key correlations and traits
+        correlations = []
+        
+        # High-volume correlation
+        if volume_col and high_volume > 0:
+            high_vol_segment = segment[segment[volume_col] > 100]
+            hv_drug1_prob = high_vol_segment[f'{drug1}_probability'].mean()
+            hv_drug2_prob = high_vol_segment[f'{drug2}_probability'].mean()
+            if hv_drug1_prob > hv_drug2_prob * 1.2:
+                correlations.append(f"High-volume prescribers in this quadrant favor {drug1} ({hv_drug1_prob:.2f} vs {hv_drug2_prob:.2f})")
+            elif hv_drug2_prob > hv_drug1_prob * 1.2:
+                correlations.append(f"High-volume prescribers in this quadrant favor {drug2} ({hv_drug2_prob:.2f} vs {hv_drug1_prob:.2f})")
+        
+        # Specialty-specific preferences
+        if specialty_col and len(specialties) > 0:
+            for spec in specialties.head(2).index:
+                spec_segment = segment[segment[specialty_col] == spec]
+                spec_drug1 = spec_segment[f'{drug1}_probability'].mean()
+                spec_drug2 = spec_segment[f'{drug2}_probability'].mean()
+                if abs(spec_drug1 - spec_drug2) > 0.15:
+                    if spec_drug1 > spec_drug2:
+                        correlations.append(f"{spec} specialists show {drug1} preference ({spec_drug1:.2f} vs {spec_drug2:.2f})")
+                    else:
+                        correlations.append(f"{spec} specialists show {drug2} preference ({spec_drug2:.2f} vs {spec_drug1:.2f})")
+        
+        # Market share in quadrant
+        if f'{drug1}_scripts' in segment.columns and f'{drug2}_scripts' in segment.columns:
+            drug1_total = segment[f'{drug1}_scripts'].sum()
+            drug2_total = segment[f'{drug2}_scripts'].sum()
+            total = drug1_total + drug2_total
+            if total > 0:
+                facts.append(f"\nMARKET SHARE IN QUADRANT:")
+                facts.append(f"• {drug1}: {drug1_total} scripts ({drug1_total/total*100:.1f}%)")
+                facts.append(f"• {drug2}: {drug2_total} scripts ({drug2_total/total*100:.1f}%)")
+        
+        # Position-based insights
+        if '75-100%' in x_range and '75-100%' in y_range:
+            correlations.append("DUAL PRESCRIBERS: These doctors actively use both drugs, likely for different patient profiles")
+        elif '75-100%' in x_range and '0-25%' in y_range:
+            correlations.append(f"STRONG {drug1.upper()} PREFERENCE: Minimal {drug2} usage indicates clear formulary choice or clinical preference")
+        elif '0-25%' in x_range and '75-100%' in y_range:
+            correlations.append(f"STRONG {drug2.upper()} PREFERENCE: Minimal {drug1} usage suggests established treatment protocols")
+        elif '0-25%' in x_range and '0-25%' in y_range:
+            correlations.append("LOW JAK INHIBITOR USAGE: May prefer alternative therapies or treat different patient populations")
+        
+        # Build final description
+        description = "\n".join(facts)
+        if correlations:
+            description += "\n\nKEY CORRELATIONS & INSIGHTS:"
+            for correlation in correlations:
+                description += f"\n• {correlation}"
+        
+        return description
     
     def _generate_general_text_report(self, insights: str, technical_data: Dict, query: str) -> str:
         """Generate non-technical text report for general queries"""
